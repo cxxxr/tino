@@ -1,3 +1,5 @@
+### 初期セットアップ
+
 ```sh
 $ mkdir $HOME/dev
 $ cd $HOME/dev
@@ -10,6 +12,8 @@ $ cp ../tino/target.txt ./Conf/target.txt
 $ make -C /home/user/dev/edk2/BaseTools/Source/C
 $ build
 ```
+
+### ビルドと起動
 
 ```sh
 $ cd $HOME/dev/edk2
