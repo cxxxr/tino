@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 if [ $# -ne 1 ]; then
     echo "usage $0 EFI_FILE"
