@@ -7,22 +7,10 @@
 #include  <Protocol/DiskIo2.h>
 #include  <Protocol/BlockIo.h>
 
-EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
-                           EFI_SYSTEM_TABLE *system_table) {
-    CHAR8 memory_map_buffer[1024 * 16];
-
-    UINTN memory_map_size = sizeof(memory_map_buffer);
-    VOID* memory_map = memory_map_buffer;
-    UINTN map_key;
-    UINTN map_descriptor_size;
-    UINT32 map_descriptor_version;
-
-    gBS->GetMemoryMap(&memory_map_size,
-                      (EFI_MEMORY_DESCRIPTOR*)memory_map,
-                      &map_key,
-                      &map_descriptor_size,
-                      &map_descriptor_version);
-
+void save_memmap(EFI_HANDLE image_handle,
+                 UINTN memory_map_size,
+                 VOID* memory_map,
+                 UINTN map_descriptor_size) {
     EFI_LOADED_IMAGE_PROTOCOL* loaded_image;
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fs;
 
@@ -56,9 +44,6 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
         UINTN len = AsciiStrLen(header);
         memmap_file->Write(memmap_file, &len, header);
 
-        Print(L"memory_map_buffer = %08lx, memory_map_size = %08lx\n",
-              memory_map_buffer, memory_map_size);
-
         char buf[256];
 
         EFI_PHYSICAL_ADDRESS iter;
@@ -77,6 +62,31 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     }
 
     memmap_file->Close(memmap_file);
+}
+
+EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
+                           EFI_SYSTEM_TABLE *system_table) {
+    CHAR8 memory_map_buffer[1024 * 16];
+
+    UINTN memory_map_size = sizeof(memory_map_buffer);
+    VOID* memory_map = memory_map_buffer;
+    UINTN map_key;
+    UINTN map_descriptor_size;
+    UINT32 map_descriptor_version;
+
+    gBS->GetMemoryMap(&memory_map_size,
+                      (EFI_MEMORY_DESCRIPTOR*)memory_map,
+                      &map_key,
+                      &map_descriptor_size,
+                      &map_descriptor_version);
+
+    Print(L"memory_map_buffer = %08lx, memory_map_size = %08lx\n",
+          memory_map_buffer, memory_map_size);
+
+    save_memmap(image_handle,
+                memory_map_size,
+                memory_map,
+                map_descriptor_size);
 
     Print(L"Hello World");
     while (1);
