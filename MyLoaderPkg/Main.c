@@ -7,29 +7,11 @@
 #include  <Protocol/DiskIo2.h>
 #include  <Protocol/BlockIo.h>
 
-void save_memmap(EFI_HANDLE image_handle,
+void save_memmap(EFI_FILE_PROTOCOL* root_dir,
                  UINTN memory_map_size,
                  VOID* memory_map,
-                 UINTN map_descriptor_size) {
-    EFI_LOADED_IMAGE_PROTOCOL* loaded_image;
-    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fs;
-
-    gBS->OpenProtocol(image_handle,
-                      &gEfiLoadedImageProtocolGuid,
-                      (VOID**)&loaded_image,
-                      image_handle,
-                      NULL,
-                      EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-
-    gBS->OpenProtocol(loaded_image->DeviceHandle,
-                      &gEfiSimpleFileSystemProtocolGuid,
-                      (VOID**)&fs,
-                      image_handle,
-                      NULL,
-                      EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-
-    EFI_FILE_PROTOCOL* root_dir;
-    fs->OpenVolume(fs, &root_dir);
+                 UINTN map_descriptor_size)
+{
 
     EFI_FILE_PROTOCOL* memmap_file;
 
@@ -64,8 +46,32 @@ void save_memmap(EFI_HANDLE image_handle,
     memmap_file->Close(memmap_file);
 }
 
+void open_root_dir(EFI_HANDLE image_handle,
+                   EFI_FILE_PROTOCOL** root_dir)
+{
+    EFI_LOADED_IMAGE_PROTOCOL* loaded_image;
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fs;
+
+    gBS->OpenProtocol(image_handle,
+                      &gEfiLoadedImageProtocolGuid,
+                      (VOID**)&loaded_image,
+                      image_handle,
+                      NULL,
+                      EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+
+    gBS->OpenProtocol(loaded_image->DeviceHandle,
+                      &gEfiSimpleFileSystemProtocolGuid,
+                      (VOID**)&fs,
+                      image_handle,
+                      NULL,
+                      EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+
+    fs->OpenVolume(fs, root_dir);
+}
+
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
-                           EFI_SYSTEM_TABLE *system_table) {
+                           EFI_SYSTEM_TABLE *system_table)
+{
     CHAR8 memory_map_buffer[1024 * 16];
 
     UINTN memory_map_size = sizeof(memory_map_buffer);
@@ -83,7 +89,11 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     Print(L"memory_map_buffer = %08lx, memory_map_size = %08lx\n",
           memory_map_buffer, memory_map_size);
 
-    save_memmap(image_handle,
+    EFI_FILE_PROTOCOL* root_dir;
+
+    open_root_dir(image_handle, &root_dir);
+
+    save_memmap(root_dir,
                 memory_map_size,
                 memory_map,
                 map_descriptor_size);
