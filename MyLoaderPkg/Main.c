@@ -9,6 +9,8 @@
 #include  <Protocol/BlockIo.h>
 #include  <Guid/FileInfo.h>
 
+#include "../kernel/efi.h"
+
 const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
 
 void save_memmap(EFI_FILE_PROTOCOL * root_dir,
@@ -234,9 +236,16 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
-        typedef void EntryPointType(UINT64, UINT64);
-        ((EntryPointType *) (entry_addr)) (gop->Mode->FrameBufferBase,
-                                           gop->Mode->FrameBufferSize);
+        typedef void EntryPointType(_EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE);
+
+        _EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE mode = (_EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE){
+            gop->Mode->MaxMode,
+            gop->Mode->Mode,
+            (_EFI_GRAPHICS_OUTPUT_MODE_INFORMATION*)gop->Mode->Info,
+            gop->Mode->FrameBufferBase,
+            gop->Mode->FrameBufferSize
+        };
+        ((EntryPointType *) (entry_addr)) (mode);
     }
 
     while (1);
