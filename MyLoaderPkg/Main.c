@@ -170,13 +170,13 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         EFI_FILE_PROTOCOL *kernel_file;
-        EFI_STATUS result = root_dir->Open(root_dir,
+        EFI_STATUS status = root_dir->Open(root_dir,
                                            &kernel_file,
                                            L"\\kernel.elf",
                                            EFI_FILE_MODE_READ, 0);
-        if (result != EFI_SUCCESS) {
+        if (EFI_ERROR(status)) {
             Print(L"could not open kernel.elf: %s\n",
-                  efi_status_to_string(result));
+                  efi_status_to_string(status));
             while (1);
         }
 
