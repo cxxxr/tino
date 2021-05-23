@@ -2,11 +2,14 @@
 #include  <Library/UefiLib.h>
 #include  <Library/UefiBootServicesTableLib.h>
 #include  <Library/PrintLib.h>
+#include  <Library/MemoryAllocationLib.h>
 #include  <Protocol/LoadedImage.h>
 #include  <Protocol/SimpleFileSystem.h>
 #include  <Protocol/DiskIo2.h>
 #include  <Protocol/BlockIo.h>
 #include  <Guid/FileInfo.h>
+
+const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
 
 void save_memmap(EFI_FILE_PROTOCOL * root_dir,
                  UINTN memory_map_size,
@@ -142,7 +145,20 @@ const CHAR16 *efi_status_to_string(EFI_STATUS status)
     }
 }
 
-const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
+void open_gop(EFI_HANDLE image_handle, EFI_GRAPHICS_OUTPUT_PROTOCOL ** gop)
+{
+    UINTN num_gop_handles = 0;
+    EFI_HANDLE *gop_handles = NULL;
+    gBS->LocateHandleBuffer(ByProtocol,
+                            &gEfiGraphicsOutputProtocolGuid,
+                            NULL, &num_gop_handles, &gop_handles);
+    gBS->OpenProtocol(gop_handles[0],
+                      &gEfiGraphicsOutputProtocolGuid,
+                      (VOID **) gop,
+                      image_handle,
+                      NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+    FreePool(gop_handles);
+}
 
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
                            EFI_SYSTEM_TABLE * system_table)
@@ -170,6 +186,9 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     save_memmap(root_dir,
                 memory_map_size, memory_map, map_descriptor_size);
 
+    EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+    open_gop(image_handle, &gop);
+
     {
         EFI_FILE_PROTOCOL *kernel_file;
         EFI_STATUS status = root_dir->Open(root_dir,
@@ -194,12 +213,9 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
         EFI_PHYSICAL_ADDRESS addr = kernel_base_addr;
         gBS->AllocatePages(AllocateAddress,
                            EfiLoaderData,
-                           (kernel_file_size + 0xfff) / 0x1000,
-                           &addr);
-        kernel_file->Read(kernel_file, &kernel_file_size,
-                          (VOID *) addr);
-        Print(L"Kernel: 0x%0lx (%lu bytes)\n", addr,
-              kernel_file_size);
+                           (kernel_file_size + 0xfff) / 0x1000, &addr);
+        kernel_file->Read(kernel_file, &kernel_file_size, (VOID *) addr);
+        Print(L"Kernel: 0x%0lx (%lu bytes)\n", addr, kernel_file_size);
     }
 
     {
@@ -217,9 +233,10 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     }
 
     {
-        UINT64 entry_addr = *((UINT64*)(kernel_base_addr + 24));
-        typedef void EntryPointType(void);
-        ((EntryPointType*)(entry_addr))();
+        UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
+        typedef void EntryPointType(UINT64, UINT64);
+        ((EntryPointType *) (entry_addr)) (gop->Mode->FrameBufferBase,
+                                           gop->Mode->FrameBufferSize);
     }
 
     while (1);
