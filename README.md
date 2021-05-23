@@ -15,10 +15,12 @@ $ build
 
 ### ビルドと起動
 
+事前にtino/kernelに移動しコンパイルしてkernel.elfをつくる
+
 ```sh
 $ cd $HOME/dev/edk2
 $ source edksetup.sh
 $ build
 $ cd $HOME/dev/tino
-$ ./run.sh $HOME/dev/edk2/Build/MyLoaderX64/DEBUG_CLANG38/X64/Loader.efi
+$ ./run.sh $HOME/dev/edk2/Build/MyLoaderX64/DEBUG_CLANG38/X64/Loader.efi kernel/kernel.elf
 ```

@@ -142,6 +142,8 @@ const CHAR16 *efi_status_to_string(EFI_STATUS status)
     }
 }
 
+const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
+
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
                            EFI_SYSTEM_TABLE * system_table)
 {
@@ -189,20 +191,37 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
         EFI_FILE_INFO *file_info = (EFI_FILE_INFO *) file_info_buffer;
         UINTN kernel_file_size = file_info->FileSize;
 
-        EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
+        EFI_PHYSICAL_ADDRESS addr = kernel_base_addr;
         gBS->AllocatePages(AllocateAddress,
                            EfiLoaderData,
                            (kernel_file_size + 0xfff) / 0x1000,
-                           &kernel_base_addr);
+                           &addr);
         kernel_file->Read(kernel_file, &kernel_file_size,
-                          (VOID *) kernel_base_addr);
-        Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr,
+                          (VOID *) addr);
+        Print(L"Kernel: 0x%0lx (%lu bytes)\n", addr,
               kernel_file_size);
     }
 
-    // TODO: exit boot service
+    {
+        gBS->GetMemoryMap(&memory_map_size,
+                          (EFI_MEMORY_DESCRIPTOR *) memory_map,
+                          &map_key,
+                          &map_descriptor_size, &map_descriptor_version);
 
-    Print(L"Hello World");
+        EFI_STATUS status = gBS->ExitBootServices(image_handle, map_key);
+        if (EFI_ERROR(status)) {
+            Print(L"ExitBootServices error: %s\n",
+                  efi_status_to_string(status));
+            while (1);
+        }
+    }
+
+    {
+        UINT64 entry_addr = *((UINT64*)(kernel_base_addr + 24));
+        typedef void EntryPointType(void);
+        ((EntryPointType*)(entry_addr))();
+    }
+
     while (1);
     return EFI_SUCCESS;
 }
