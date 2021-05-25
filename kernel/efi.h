@@ -1,10 +1,7 @@
 #ifndef EFI_H_
 #define EFI_H_
 
-typedef unsigned long int uint32;
-typedef unsigned long long int uint64;
-typedef unsigned char uint8;
-typedef uint64 uintn;
+#include "int.h"
 
 // typedef struct {
 //     EFI_GRAPHICS_OUTPUT_PROTOCOL_QUERY_MODE QueryMode;
