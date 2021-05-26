@@ -12,6 +12,7 @@
 
 #include "../kernel/efi.h"
 #include "../kernel/elf.h"
+#include "../kernel/frame_buffer.h"
 
 const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
 
@@ -129,7 +130,7 @@ void copy_load_segments(Elf64_Ehdr * ehdr)
 
     for (Elf64_Half i = 0; i < ehdr->e_phnum; i++) {
         if (phdr[i].p_type == PT_LOAD) {
-            UINT64 source = (UINT64)ehdr + phdr[i].p_offset;
+            UINT64 source = (UINT64) ehdr + phdr[i].p_offset;
             CopyMem((VOID *) phdr[i].p_vaddr, (VOID *) source,
                     phdr[i].p_filesz);
 
@@ -224,17 +225,30 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
-        typedef void EntryPointType(_EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE);
+        typedef void EntryPointType(FrameBuffer *);
 
-        _EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE mode =
-            (_EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE) {
-            gop->Mode->MaxMode,
-            gop->Mode->Mode,
-            (_EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *) gop->Mode->Info,
-            gop->Mode->FrameBufferBase,
+        PixelFormat pixel_format;
+
+        switch (gop->Mode->Info->PixelFormat) {
+        default:
+        case PixelRedGreenBlueReserved8BitPerColor:
+            pixel_format = PIXEL_RED_GREEN_BLUE_RESERVED_8BIT_PER_COLOR;
+            break;
+        case PixelBlueGreenRedReserved8BitPerColor:
+            pixel_format = PIXEL_BLUE_GREEN_RED_RESERVED_8BIT_PER_COLOR;
+            break;
+        }
+
+        FrameBuffer frame_buffer = (FrameBuffer) {
+            pixel_format,
+            gop->Mode->Info->PixelsPerScanLine,
+            gop->Mode->Info->HorizontalResolution,
+            gop->Mode->Info->VerticalResolution,
+            (UINT8 *) gop->Mode->FrameBufferBase,
             gop->Mode->FrameBufferSize
         };
-        ((EntryPointType *) (entry_addr)) (mode);
+
+        ((EntryPointType *) (entry_addr)) (&frame_buffer);
     }
 
     while (1);
