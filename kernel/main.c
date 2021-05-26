@@ -32,20 +32,18 @@ void draw_rectangle(Drawer * drawer, int x, int y, int width, int height,
 
     for (int i = y; i < y + height; i++) {
         for (int j = x; j < x + width; j++) {
-            uint8* pos = drawer->frame_buffer_base + (i * drawer->pixels_per_scan_line + j) * 4;
-            pos[r] = COLOR_RED(color);
-            pos[g] = COLOR_GREEN(color);
-            pos[b] = COLOR_BLUE(color);
-            // drawer->frame_buffer_base[offset + r] = COLOR_RED(color);
-            // drawer->frame_buffer_base[offset + g] = COLOR_GREEN(color);
-            // drawer->frame_buffer_base[offset + b] = COLOR_BLUE(color);
+            int offset = (i * drawer->pixels_per_scan_line + j) * 4;
+            drawer->frame_buffer_base[offset + r] = COLOR_RED(color);
+            drawer->frame_buffer_base[offset + g] = COLOR_GREEN(color);
+            drawer->frame_buffer_base[offset + b] = COLOR_BLUE(color);
         }
     }
 }
 
 void KernelMain(_EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE mode)
 {
-    Drawer drawer = { (uint8 *) mode.frame_buffer_base,
+    Drawer drawer = {
+        (uint8 *) mode.frame_buffer_base,
         mode.info->pixels_per_scan_line,
         mode.info->pixel_format
     };
