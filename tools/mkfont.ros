@@ -1,0 +1,83 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '(:cl-ppcre) :silent t)
+  )
+
+(defpackage :ros.script.mkfont.3831022993
+  (:use :cl))
+(in-package :ros.script.mkfont.3831022993)
+
+(defun usage ()
+  (write-line "mkfont.ros FILE"))
+
+(defun skip-blank-line (stream)
+  (let ((line (read-line stream)))
+    (assert (zerop (length line)))))
+
+(defun read-hex-line (stream)
+  (let ((line (read-line stream)))
+    (ppcre:register-groups-bind (hex-string)
+        ("^0x([0-9a-fA-F]{2})" line)
+      (assert (stringp hex-string))
+      (when hex-string
+        (parse-integer hex-string :radix 16)))))
+
+(defun read-chars (stream)
+  (loop :for line := (read-line stream nil nil)
+        :repeat 16
+        :collect line))
+
+(defun parse (pathname)
+  (with-open-file (in pathname)
+    (skip-blank-line in)
+    (loop :for expected-code :from 0 :to #xff
+          :collect (let ((code (read-hex-line in)))
+                     (assert (= code expected-code))
+                     (read-chars in)))))
+
+(defun line-to-bits (line)
+  (loop :with bits := 0
+        :for c :across line
+        :for i :downfrom (length line) :to 0
+        :do (when (char= c #\@)
+              (setf bits (logior bits (ash 1 i))))
+        :finally (return bits)))
+
+(defun dump-entry (stream entry last-entry-p)
+  (format stream "~4T{~%")
+  (dolist (line entry)
+    (format stream
+            "~8T(uint8)0x~(~X~), ~40T// ~A~%"
+            (line-to-bits line)
+            line))
+  (format stream "~4T}~:[,~;~]~%" last-entry-p))
+
+(defun dump-c (stream font)
+  (write-line "#ifndef FONT_H_" stream)
+  (write-line "#define FONT_H_" stream)
+  (write-line "const uint8 font[256][16] = {" stream)
+  (loop :for (entry . restp) :on font
+        :do (dump-entry stream entry (not restp)))
+  (write-line "};" stream)
+  (write-line "#endif" stream)
+  (values))
+
+(defun main (&rest argv)
+  (unless (= 2 (length argv))
+    (usage)
+    (uiop:quit 1))
+  (destructuring-bind (font-file output-file) argv
+    (let ((pathname (probe-file font-file)))
+      (unless pathname
+        (format t "~A is not exists~%" font-file)
+        (uiop:quit 1))
+      (with-open-file (out output-file
+                           :direction :output
+                           :if-exists :supersede)
+        (dump-c out (parse pathname))))))
+;;; vim: set ft=lisp lisp:

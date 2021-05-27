@@ -1,4 +1,5 @@
 #include "frame_buffer.h"
+#include "font.h"
 
 #define COLOR_RED(color) ((color >> 16) & 0xff)
 #define COLOR_GREEN(COLOR) ((color >> 8) & 0xff)
