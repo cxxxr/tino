@@ -43,7 +43,7 @@ exec ros -Q -- $0 "$@"
 (defun line-to-bits (line)
   (loop :with bits := 0
         :for c :across line
-        :for i :downfrom (length line) :to 0
+        :for i :downfrom (1- (length line)) :to 0
         :do (when (char= c #\@)
               (setf bits (logior bits (ash 1 i))))
         :finally (return bits)))
