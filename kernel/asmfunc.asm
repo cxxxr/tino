@@ -10,6 +10,6 @@ out8:
 
 global in8
 in8:
-	mov dx, dil
+	mov edx, ecx
 	in al, dx
 	ret
