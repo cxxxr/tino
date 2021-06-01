@@ -1,6 +1,7 @@
 #include "frame_buffer.h"
 #include "font.h"
 #include "asmfunc.h"
+#include "serial.h"
 
 #define COLOR_RED(color) ((color >> 16) & 0xff)
 #define COLOR_GREEN(COLOR) ((color >> 8) & 0xff)
@@ -74,62 +75,15 @@ void draw_rectangle(FrameBuffer * frame_buffer, int x, int y, int width,
     }
 }
 
-// https://wiki.osdev.org/Serial_Ports
-
-const uint16 PORT = 0x3f8;
-// const uint16 PORT = 0x2f8;
-
-int init_serial() {
-
-    out8(PORT + 1, 0x00);    // Disable all interrupts
-    out8(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
-
-    out8(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
-    out8(PORT + 1, 0x00);    //                  (hi byte)
-
-    out8(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
-    out8(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
-    out8(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
-
-    return 0;
-}
-
-int serial_received()
-{
-    return in8(PORT + 5) & 1;
-}
-
-char read_serial()
-{
-    while (!serial_received());
-    return in8(PORT);
-}
-
-int is_transmit_empty() {
-   return in8(PORT + 5) & 0x20;
-}
-
-void write_serial_char(char a) {
-   while (!is_transmit_empty());
-
-   out8(PORT,a);
-}
-
-void write_serial_string(const char* str) {
-    for (int i = 0; str[i] != '\0'; i++) {
-        write_serial_char(str[i]);
-    }
-}
-
 void KernelMain(FrameBuffer * frame_buffer)
 {
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,
                    frame_buffer->vertical_resolution, 0xffffff);
 
-    init_serial();
+    init_serial_ports();
 
-    write_serial_string("Hello World");
+    serial_write_string("Hello World");
 
     while (1) __asm__("hlt");
 }
