@@ -17,4 +17,9 @@ typedef struct _FrameBuffer {
     uintn frame_buffer_size;
 } FrameBuffer;
 
+void draw_pixel(FrameBuffer * frame_buffer, int x, int y, uint64 color);
+void draw_char(FrameBuffer * frame_buffer, int x, int y, unsigned char c, uint64 color);
+void draw_rectangle(FrameBuffer * frame_buffer, int x, int y, int width,
+                    int height, uint64 color);
+
 #endif
