@@ -42,4 +42,15 @@ typedef struct {
     uintn frame_buffer_size;
 } _EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE;
 
+typedef uint64 _EFI_PHYISICAL_ADDRESS;
+typedef uint64 _EFI_VIRTUAL_ADDRESS;
+
+typedef struct {
+    uint32 type;
+    _EFI_PHYISICAL_ADDRESS physical_start;
+    _EFI_VIRTUAL_ADDRESS virtual_start;
+    uint64 number_of_pages;
+    uint64 attribute;
+} _EFI_MEMORY_DESCRIPTOR;
+
 #endif

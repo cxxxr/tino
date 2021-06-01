@@ -2,7 +2,35 @@
 #include "asmfunc.h"
 #include "serial.h"
 
-void KernelMain(FrameBuffer * frame_buffer)
+void print_uint64_with_padding(uint64 value, int width)
+{
+    char buffer[21];
+    int i = 20, column = 0;
+    for (;;) {
+        buffer[--i] = (value % 10) + '0';
+        column++;
+        value /= 10;
+        if (value == 0) break;
+    }
+    while (width-- > column) {
+        buffer[--i] = ' ';
+    }
+    buffer[20] = '\0';
+    serial_write_string(buffer + i);
+}
+
+void print_uint64(uint64 value)
+{
+    print_uint64_with_padding(value, 0);
+}
+
+#define print_string serial_write_string
+#define print_char serial_write_char
+
+void KernelMain(FrameBuffer * frame_buffer,
+                void *memory_map,
+                uintn memory_map_size,
+                uintn map_descriptor_size)
 {
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,
@@ -10,7 +38,22 @@ void KernelMain(FrameBuffer * frame_buffer)
 
     init_serial_ports();
 
-    serial_write_string("Hello World");
+    print_string("type physical_start virtual_start number_of_pages attribute\n");
+    for (uint64 iter = (uint64)memory_map;
+         iter < (uint64)(memory_map + memory_map_size);
+         iter += map_descriptor_size) {
+        _EFI_MEMORY_DESCRIPTOR *desc = (_EFI_MEMORY_DESCRIPTOR*)iter;
+        print_uint64_with_padding(desc->type, 4);
+        print_char(' ');
+        print_uint64_with_padding((uint64)desc->physical_start, 14);
+        print_char(' ');
+        print_uint64_with_padding((uint64)desc->virtual_start, 13);
+        print_char(' ');
+        print_uint64_with_padding(desc->number_of_pages, 15);
+        print_char(' ');
+        print_uint64_with_padding(desc->attribute, 9);
+        print_char('\n');
+    }
 
     while (1) __asm__("hlt");
 }
