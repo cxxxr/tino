@@ -1,3 +1,4 @@
+#include "main.h"
 #include "frame_buffer.h"
 #include "asmfunc.h"
 #include "serial.h"
@@ -27,11 +28,25 @@ void print_uint64(uint64 value)
 #define print_string serial_write_string
 #define print_char serial_write_char
 
-void KernelMain(FrameBuffer * frame_buffer,
-                void *memory_map,
-                uintn memory_map_size,
-                uintn map_descriptor_size)
+int is_available_memory_type(_EFI_MEMORY_TYPE memory_type)
 {
+    switch (memory_type) {
+    case _EFI_BOOT_SERVICES_CODE:
+    case _EFI_BOOT_SERVICES_DATA:
+    case _EFI_CONVENTIONAL_MEMORY:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+void KernelMain(EntryParams params)
+{
+    FrameBuffer *frame_buffer = params.frame_buffer;
+    void *memory_map = params.memory_map;
+    uintn memory_map_size = params.memory_map_size;
+    uintn map_descriptor_size = params.map_descriptor_size;
+
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,
                    frame_buffer->vertical_resolution, 0xffffff);
