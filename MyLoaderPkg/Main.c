@@ -26,6 +26,8 @@ const EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
     } \
 }
 
+static EntryParams entry_params;
+
 void halt()
 {
     while (1)
@@ -226,7 +228,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
-        typedef void EntryPointType(EntryParams);
+        typedef void EntryPointType(EntryParams*);
 
         PixelFormat pixel_format;
 
@@ -249,14 +251,14 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
             gop->Mode->FrameBufferSize
         };
 
-        EntryParams params = {
-            &frame_buffer,
-            memory_map,
-            memory_map_size,
-            map_descriptor_size,
-        };
+        entry_params.frame_buffer = &frame_buffer;
+        entry_params.memory_map = memory_map;
+        entry_params.memory_map_size = memory_map_size;
+        entry_params.map_descriptor_size = map_descriptor_size;
 
-        ((EntryPointType *) (entry_addr)) (params);
+        EntryParams *arg = &entry_params;
+
+        ((EntryPointType *) (entry_addr)) (arg);
     }
 
     return EFI_SUCCESS;

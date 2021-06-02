@@ -40,12 +40,14 @@ int is_available_memory_type(_EFI_MEMORY_TYPE memory_type)
     }
 }
 
-void KernelMain(EntryParams params)
+uint8 kernel_stack[1024 * 1024];
+
+void kernel_entry(EntryParams *params)
 {
-    FrameBuffer *frame_buffer = params.frame_buffer;
-    void *memory_map = params.memory_map;
-    uintn memory_map_size = params.memory_map_size;
-    uintn map_descriptor_size = params.map_descriptor_size;
+    FrameBuffer *frame_buffer = params->frame_buffer;
+    void *memory_map = params->memory_map;
+    uintn memory_map_size = params->memory_map_size;
+    uintn map_descriptor_size = params->map_descriptor_size;
 
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,

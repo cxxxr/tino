@@ -21,3 +21,11 @@ read_io_port8:
 	mov edx, ecx
 	in al, dx
 	ret
+
+extern kernel_stack
+extern kernel_entry
+
+global call_kernel
+call_kernel:
+	mov rsp, kernel_stack + 1024 * 1024
+	call kernel_entry
