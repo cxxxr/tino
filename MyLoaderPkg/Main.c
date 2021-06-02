@@ -225,7 +225,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
-        typedef void EntryPointType(FrameBuffer *);
+        typedef void EntryPointType(FrameBuffer *, VOID*, UINTN, UINTN);
 
         PixelFormat pixel_format;
 
@@ -248,7 +248,10 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
             gop->Mode->FrameBufferSize
         };
 
-        ((EntryPointType *) (entry_addr)) (&frame_buffer);
+        ((EntryPointType *) (entry_addr)) (&frame_buffer,
+                                           memory_map,
+                                           memory_map_size,
+                                           map_descriptor_size);
     }
 
     while (1);
