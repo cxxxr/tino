@@ -3,7 +3,7 @@
 
 #include "int.h"
 
-void out8(uint16 addr, uint8 data);
-uint8 in8(uint16 addr);
+void write_io_port8(uint16 addr, uint8 data);
+uint8 read_io_port8(uint16 addr);
 
 #endif

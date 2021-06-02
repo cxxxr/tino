@@ -7,17 +7,17 @@ section .text
 ; rsi, esi, si, sil
 ; rcx, ecx, cx, ch:cl
 
-; void out8(uint16 addr, uint8 data)
-global out8
-out8:
+; void write_io_port8(uint16 addr, uint8 data)
+global write_io_port8
+write_io_port8:
 	mov dx, di
 	mov al, sil
 	out dx, al
 	ret
 
-; uint8 in8(uint16 addr)
-global in8
-in8:
+; uint8 read_io_port8(uint16 addr)
+global read_io_port8
+read_io_port8:
 	mov edx, ecx
 	in al, dx
 	ret
