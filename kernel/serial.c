@@ -19,24 +19,24 @@ static void init_serial(const uint16 port)
     write_io_port8(port + 4, 0x0B);       // IRQs enabled, RTS/DSR set
 }
 
-void init_serial_ports()
+void init_serial_ports(void)
 {
     init_serial(PORT);
     init_serial(PORT2);
 }
 
-static int serial_received()
+static int serial_received(void)
 {
     return read_io_port8(PORT2 + 5) & 1;
 }
 
-char serial_read_char()
+char serial_read_char(void)
 {
     while (!serial_received());
     return read_io_port8(PORT2);
 }
 
-static int is_transmit_empty()
+static int is_transmit_empty(void)
 {
     return read_io_port8(PORT + 5) & 0x20;
 }

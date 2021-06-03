@@ -16,12 +16,12 @@ uint64 make_gdt_descriptor(uint8 rw_flag, uint8 ex_flag, uint8 long_mode)
             0);
 }
 
-uint64 make_gdt_kernel_code()
+uint64 make_gdt_kernel_code(void)
 {
     return make_gdt_descriptor(1, 1, 1);
 }
 
-uint64 make_gdt_kernel_data()
+uint64 make_gdt_kernel_data(void)
 {
     return make_gdt_descriptor(1, 0, 0);
 }
