@@ -2,6 +2,7 @@
 #include "frame_buffer.h"
 #include "asmfunc.h"
 #include "serial.h"
+#include "gdt.h"
 
 void print_uint64_with_padding(uint64 value, int width)
 {
@@ -54,6 +55,7 @@ void kernel_entry(EntryParams *params)
                    frame_buffer->vertical_resolution, 0xffffff);
 
     init_serial_ports();
+    init_gdt();
 
     print_string("type physical_start virtual_start number_of_pages attribute\n");
     for (uint64 iter = (uint64)memory_map;

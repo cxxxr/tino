@@ -29,3 +29,8 @@ global call_kernel
 call_kernel:
 	mov rsp, kernel_stack + 1024 * 1024
 	call kernel_entry
+
+global load_gdtr
+load_gdtr:
+	lgdt [rdi]
+	ret
