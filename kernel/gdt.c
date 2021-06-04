@@ -9,7 +9,7 @@ uint64 make_gdt_descriptor(uint8 rw_flag, uint8 ex_flag, uint8 long_mode)
             (uint64)ex_flag << 43       | // Access Byte Ex
             (uint64)1 << 44             | // Access Byte S
             (uint64)0 << 45             | // Privl
-            (uint64)1 << 48             | // Pr
+            (uint64)1 << 47             | // Pr
             (uint64)long_mode << 53     | // Long mode, wikiでは0になってる？
             0                           | // Sz
             (uint64)1 << 55             | // Gr, 1にすると4KiB単位
