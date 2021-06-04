@@ -3,7 +3,7 @@
 
 // https://wiki.osdev.org/Global_Descriptor_Table
 
-uint64 make_gdt_descriptor(uint8 rw_flag, uint8 ex_flag, uint8 long_mode)
+static uint64 make_gdt_descriptor(uint8 rw_flag, uint8 ex_flag, uint8 long_mode)
 {
     return ((uint64)rw_flag << 41       | // Access Byte RW
             (uint64)ex_flag << 43       | // Access Byte Ex
@@ -16,12 +16,12 @@ uint64 make_gdt_descriptor(uint8 rw_flag, uint8 ex_flag, uint8 long_mode)
             0);
 }
 
-uint64 make_gdt_kernel_code(void)
+static uint64 make_gdt_kernel_code(void)
 {
     return make_gdt_descriptor(1, 1, 1);
 }
 
-uint64 make_gdt_kernel_data(void)
+static uint64 make_gdt_kernel_data(void)
 {
     return make_gdt_descriptor(1, 0, 0);
 }
