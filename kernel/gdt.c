@@ -42,4 +42,9 @@ void init_gdt(void)
     gdtr.limit = sizeof(gdt) - 1;
     gdtr.base = &gdt;
     load_gdtr(&gdtr);
+
+    set_ds_all(0);
+    const int cs = 1 << 3;
+    const int ss = 2 << 3;
+    set_cs_ss(cs, ss);
 }

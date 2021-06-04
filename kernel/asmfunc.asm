@@ -34,3 +34,25 @@ global load_gdtr
 load_gdtr:
 	lgdt [rdi]
 	ret
+
+global set_ds_all
+set_ds_all:
+	mov ds, di
+	mov es, di
+	mov fs, di
+	mov gs, di
+	ret
+
+global set_cs_ss
+set_cs_ss:
+	push rbp
+	mov rbp, rsp
+	mov ss, si
+	mov rax, .next
+	push rdi
+	push rax
+	o64 retf
+.next:
+	mov rsp, rbp
+	pop rbp
+	ret

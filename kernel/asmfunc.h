@@ -6,5 +6,7 @@
 void write_io_port8(uint16 addr, uint8 data);
 uint8 read_io_port8(uint16 addr);
 void load_gdtr(void* addr);
+void set_ds_all(uint16 di);
+void set_cs_ss(uint16 cs, uint16 ss);
 
 #endif
