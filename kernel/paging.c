@@ -6,8 +6,7 @@
 #define PDP_N 64
 
 #define KiB(n) ((n) * 1024)
-#define MiB(n) (KiB(n) * 1024)
-#define GiB(n) (MiB(n) * 1024)
+#define MiB(n) ((n) * 1024 * 1024)
 
 _Alignas(KiB(4)) static uint64 pml4_table[SIZE];
 _Alignas(KiB(4)) static uint64 pdp_table[SIZE];
@@ -25,15 +24,12 @@ void init_page_table(void)
 
     pml4_table[0] = (uint64)pdp_table | flags;
 
-    for (int i = 1; i < SIZE; i++) {
-        pml4_table[i] = 0;
-    }
-
+    uint64 addr = 0;
     for (int pdp_i = 0; pdp_i < PDP_N; pdp_i++) {
-        pdp_table[pdp_i] = (uint64)(page_directory + pdp_i) | flags;
+        pdp_table[pdp_i] = (uint64)&page_directory[pdp_i] | flags;
         for (int pd_i = 0; pd_i < SIZE; pd_i++) {
-            page_directory[pdp_i][pd_i] = ((pd_i * MiB(2) + pdp_i * GiB(1)) |
-                                           (flags | PAGE_DIRECTORY_PAGE_SIZE));
+            page_directory[pdp_i][pd_i] = addr | (flags | PAGE_DIRECTORY_PAGE_SIZE);
+            addr += MiB(2);
         }
     }
 
