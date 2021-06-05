@@ -3,6 +3,7 @@
 #include "asmfunc.h"
 #include "serial.h"
 #include "gdt.h"
+#include "paging.h"
 
 void print_uint64_with_padding(uint64 value, int width)
 {
@@ -50,12 +51,13 @@ void kernel_entry(EntryParams *params)
     uintn memory_map_size = params->memory_map_size;
     uintn map_descriptor_size = params->map_descriptor_size;
 
+    init_serial_ports();
+    init_gdt();
+    init_page_table();
+
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,
                    frame_buffer->vertical_resolution, 0xffffff);
-
-    init_serial_ports();
-    init_gdt();
 
     print_string("type physical_start virtual_start number_of_pages attribute\n");
     for (uint64 iter = (uint64)memory_map;
