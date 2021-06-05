@@ -24,3 +24,8 @@ $ build
 $ cd $HOME/dev/tino
 $ ./run.sh $HOME/dev/edk2/Build/MyLoaderX64/DEBUG_CLANG38/X64/Loader.efi kernel/kernel.elf
 ```
+
+### GDB
+
+1. qemuのオプションに-sを付けて起動
+2. gdb -x gdbinit で接続
