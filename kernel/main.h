@@ -5,10 +5,14 @@
 #include "int.h"
 
 typedef struct {
+    void *base;
+    uintn size;
+    uintn descriptor_size;
+} MemoryMap;
+
+typedef struct {
     FrameBuffer *frame_buffer;
-    void *memory_map;
-    uintn memory_map_size;
-    uintn map_descriptor_size;
+    MemoryMap memory_map;
 } EntryParams;
 
 #endif

@@ -22,9 +22,7 @@ uint8 kernel_stack[1024 * 1024];
 void kernel_entry(EntryParams *params)
 {
     FrameBuffer *frame_buffer = params->frame_buffer;
-    void *memory_map = params->memory_map;
-    uintn memory_map_size = params->memory_map_size;
-    uintn map_descriptor_size = params->map_descriptor_size;
+    MemoryMap memory_map = params->memory_map;
 
     init_serial_ports();
     init_gdt();
@@ -35,9 +33,9 @@ void kernel_entry(EntryParams *params)
                    frame_buffer->vertical_resolution, 0xffffff);
 
     print_string("type physical_start virtual_start number_of_pages attribute\n");
-    for (uint64 iter = (uint64)memory_map;
-         iter < (uint64)(memory_map + memory_map_size);
-         iter += map_descriptor_size) {
+    for (uint64 iter = (uint64)memory_map.base;
+         iter < (uint64)(memory_map.base + memory_map.size);
+         iter += memory_map.descriptor_size) {
         _EFI_MEMORY_DESCRIPTOR *desc = (_EFI_MEMORY_DESCRIPTOR*)iter;
         print_uint64_with_padding(desc->type, 4);
         print_char(' ');

@@ -252,9 +252,9 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
         };
 
         entry_params.frame_buffer = &frame_buffer;
-        entry_params.memory_map = memory_map;
-        entry_params.memory_map_size = memory_map_size;
-        entry_params.map_descriptor_size = map_descriptor_size;
+        entry_params.memory_map.base = memory_map;
+        entry_params.memory_map.size = memory_map_size;
+        entry_params.memory_map.descriptor_size = map_descriptor_size;
 
         EntryParams *arg = &entry_params;
 
