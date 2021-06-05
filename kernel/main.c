@@ -5,31 +5,6 @@
 #include "gdt.h"
 #include "paging.h"
 
-void print_uint64_with_padding(uint64 value, int width)
-{
-    char buffer[21];
-    int i = 20, column = 0;
-    for (;;) {
-        buffer[--i] = (value % 10) + '0';
-        column++;
-        value /= 10;
-        if (value == 0) break;
-    }
-    while (width-- > column) {
-        buffer[--i] = ' ';
-    }
-    buffer[20] = '\0';
-    serial_write_string(buffer + i);
-}
-
-void print_uint64(uint64 value)
-{
-    print_uint64_with_padding(value, 0);
-}
-
-#define print_string serial_write_string
-#define print_char serial_write_char
-
 int is_available_memory_type(_EFI_MEMORY_TYPE memory_type)
 {
     switch (memory_type) {

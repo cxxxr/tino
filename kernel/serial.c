@@ -54,3 +54,25 @@ void serial_write_string(const char *str)
         serial_write_char(str[i]);
     }
 }
+
+void print_uint64_with_padding(uint64 value, int width)
+{
+    char buffer[21];
+    int i = 20, column = 0;
+    for (;;) {
+        buffer[--i] = (value % 10) + '0';
+        column++;
+        value /= 10;
+        if (value == 0) break;
+    }
+    while (width-- > column) {
+        buffer[--i] = ' ';
+    }
+    buffer[20] = '\0';
+    serial_write_string(buffer + i);
+}
+
+void print_uint64(uint64 value)
+{
+    print_uint64_with_padding(value, 0);
+}
