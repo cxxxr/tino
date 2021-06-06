@@ -4,18 +4,7 @@
 #include "serial.h"
 #include "gdt.h"
 #include "paging.h"
-
-int is_available_memory_type(_EFI_MEMORY_TYPE memory_type)
-{
-    switch (memory_type) {
-    case _EFI_BOOT_SERVICES_CODE:
-    case _EFI_BOOT_SERVICES_DATA:
-    case _EFI_CONVENTIONAL_MEMORY:
-        return 1;
-    default:
-        return 0;
-    }
-}
+#include "memory.h"
 
 uint8 kernel_stack[1024 * 1024];
 
@@ -27,6 +16,7 @@ void kernel_entry(EntryParams *params)
     init_serial_ports();
     init_gdt();
     init_page_table();
+    init_memory(&memory_map);
 
     draw_rectangle(frame_buffer, 0, 0,
                    frame_buffer->horizontal_resolution,

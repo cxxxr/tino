@@ -3,12 +3,7 @@
 
 #include "frame_buffer.h"
 #include "int.h"
-
-typedef struct {
-    void *base;
-    uintn size;
-    uintn descriptor_size;
-} MemoryMap;
+#include "memory.h"
 
 typedef struct {
     FrameBuffer *frame_buffer;
