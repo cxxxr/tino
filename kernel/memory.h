@@ -10,5 +10,6 @@ typedef struct {
 } MemoryMap;
 
 void init_memory(MemoryMap* map);
+void* alloc(uint64 size);
 
 #endif

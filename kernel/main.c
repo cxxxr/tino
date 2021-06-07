@@ -22,22 +22,5 @@ void kernel_entry(EntryParams *params)
                    frame_buffer->horizontal_resolution,
                    frame_buffer->vertical_resolution, 0xffffff);
 
-    print_string("type physical_start virtual_start number_of_pages attribute\n");
-    for (uint64 iter = (uint64)memory_map.base;
-         iter < (uint64)(memory_map.base + memory_map.size);
-         iter += memory_map.descriptor_size) {
-        _EFI_MEMORY_DESCRIPTOR *desc = (_EFI_MEMORY_DESCRIPTOR*)iter;
-        print_uint64_with_padding(desc->type, 4);
-        print_char(' ');
-        print_uint64_with_padding((uint64)desc->physical_start, 14);
-        print_char(' ');
-        print_uint64_with_padding((uint64)desc->virtual_start, 13);
-        print_char(' ');
-        print_uint64_with_padding(desc->number_of_pages, 15);
-        print_char(' ');
-        print_uint64_with_padding(desc->attribute, 9);
-        print_char('\n');
-    }
-
     while (1) __asm__("hlt");
 }
