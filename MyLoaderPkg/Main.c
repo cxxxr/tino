@@ -34,46 +34,6 @@ void halt()
         __asm__("hlt");
 }
 
-void save_memmap(EFI_FILE_PROTOCOL * root_dir,
-                 UINTN memory_map_size,
-                 VOID * memory_map, UINTN map_descriptor_size)
-{
-
-    EFI_FILE_PROTOCOL *memmap_file;
-
-    root_dir->Open(root_dir,
-                   &memmap_file,
-                   L"\\memmap",
-                   EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE |
-                   EFI_FILE_MODE_CREATE, 0);
-
-    {
-        CHAR8 *header =
-            "Index, Type, PhysicalStart, NumberOfPages, Attribute\n";
-        UINTN len = AsciiStrLen(header);
-        memmap_file->Write(memmap_file, &len, header);
-
-        char buf[256];
-
-        EFI_PHYSICAL_ADDRESS iter;
-        int i;
-        for (iter = (EFI_PHYSICAL_ADDRESS) memory_map, i = 0;
-             iter < (EFI_PHYSICAL_ADDRESS) memory_map + memory_map_size;
-             iter += map_descriptor_size, i++) {
-            EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *) iter;
-            UINTN len = AsciiSPrint(buf,
-                                    sizeof(buf),
-                                    "%u, %x, %08lx, %lx, %lx\n",
-                                    i, desc->Type, desc->PhysicalStart,
-                                    desc->NumberOfPages,
-                                    desc->Attribute & 0xffffflu);
-            memmap_file->Write(memmap_file, &len, buf);
-        }
-    }
-
-    memmap_file->Close(memmap_file);
-}
-
 void open_root_dir(EFI_HANDLE image_handle, EFI_FILE_PROTOCOL ** root_dir)
 {
     EFI_LOADED_IMAGE_PROTOCOL *loaded_image;
@@ -155,25 +115,13 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     UINTN map_descriptor_size;
     UINT32 map_descriptor_version;
 
-    gBS->GetMemoryMap(&memory_map_size,
-                      (EFI_MEMORY_DESCRIPTOR *) memory_map,
-                      &map_key,
-                      &map_descriptor_size, &map_descriptor_version);
-
-    Print(L"memory_map_buffer = %08lx, memory_map_size = %08lx\n",
-          memory_map_buffer, memory_map_size);
-
-    EFI_FILE_PROTOCOL *root_dir;
-
-    open_root_dir(image_handle, &root_dir);
-
-    save_memmap(root_dir,
-                memory_map_size, memory_map, map_descriptor_size);
-
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
     open_gop(image_handle, &gop);
 
     {
+        EFI_FILE_PROTOCOL *root_dir;
+        open_root_dir(image_handle, &root_dir);
+
         EFI_FILE_PROTOCOL *kernel_file;
         ASSERT(root_dir->Open(root_dir,
                               &kernel_file,
