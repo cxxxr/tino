@@ -21,11 +21,13 @@ struct page {
 
 static struct page head;
 
+#if 0
 // 物理アドレス0とNULLの区別が付かないため、最後の要素の1ビット目に印をつける
 static int is_end(struct page* p)
 {
     return (uint64)p->next & 1;
 }
+#endif
 
 static void set_end(struct page* p)
 {
@@ -71,6 +73,7 @@ void* alloc(uint64 size)
     }
 }
 
+#if 0
 static void print_free_list(void)
 {
     for (struct page *p = head.next; ; p = p->next) {
@@ -81,6 +84,7 @@ static void print_free_list(void)
         if (is_end(p)) break;
     }
 }
+#endif
 
 static void print_memory_map(MemoryMap *map)
 {
