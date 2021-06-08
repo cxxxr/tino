@@ -104,6 +104,54 @@ void copy_load_segments(Elf64_Ehdr * ehdr)
     }
 }
 
+void load_kernel(EFI_HANDLE image_handle)
+{
+    EFI_FILE_PROTOCOL *root_dir;
+    open_root_dir(image_handle, &root_dir);
+
+    EFI_FILE_PROTOCOL *kernel_file;
+    ASSERT(root_dir->Open(root_dir,
+                          &kernel_file,
+                          L"\\kernel.elf", EFI_FILE_MODE_READ, 0));
+
+    UINTN file_info_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINT8 file_info_buffer[file_info_size];
+    kernel_file->GetInfo(kernel_file,
+                         &gEfiFileInfoGuid,
+                         &file_info_size, file_info_buffer);
+
+    EFI_FILE_INFO *file_info = (EFI_FILE_INFO *) file_info_buffer;
+    UINTN kernel_file_size = file_info->FileSize;
+
+    VOID *kernel_buffer;
+
+    ASSERT(gBS->AllocatePool(EfiLoaderData, kernel_file_size,
+                             &kernel_buffer));
+    ASSERT(kernel_file->Read
+           (kernel_file, &kernel_file_size, kernel_buffer));
+
+    Elf64_Ehdr *kernel_ehdr = (Elf64_Ehdr *) kernel_buffer;
+
+    UINTN kernel_first_addr, kernel_last_addr;
+    get_load_address_range(kernel_ehdr, &kernel_first_addr,
+                           &kernel_last_addr);
+    Print(L"kernel_first_addr = %lx, kernel_last_addr = %lx\n",
+          kernel_first_addr, kernel_last_addr);
+    ASSERT(gBS->AllocatePages(AllocateAddress, EfiLoaderData,
+                              (kernel_last_addr - kernel_first_addr +
+                               0xfff) / 0x1000, &kernel_first_addr));
+
+    if (kernel_first_addr != kernel_base_addr) {
+        Print(L"kernel_first_addr != 0x100000: %p\n",
+              kernel_first_addr);
+        halt();
+    }
+
+    copy_load_segments(kernel_ehdr);
+
+    ASSERT(gBS->FreePool(kernel_buffer));
+}
+
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
                            EFI_SYSTEM_TABLE * system_table)
 {
@@ -118,52 +166,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
     open_gop(image_handle, &gop);
 
-    {
-        EFI_FILE_PROTOCOL *root_dir;
-        open_root_dir(image_handle, &root_dir);
-
-        EFI_FILE_PROTOCOL *kernel_file;
-        ASSERT(root_dir->Open(root_dir,
-                              &kernel_file,
-                              L"\\kernel.elf", EFI_FILE_MODE_READ, 0));
-
-        UINTN file_info_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-        UINT8 file_info_buffer[file_info_size];
-        kernel_file->GetInfo(kernel_file,
-                             &gEfiFileInfoGuid,
-                             &file_info_size, file_info_buffer);
-
-        EFI_FILE_INFO *file_info = (EFI_FILE_INFO *) file_info_buffer;
-        UINTN kernel_file_size = file_info->FileSize;
-
-        VOID *kernel_buffer;
-
-        ASSERT(gBS->AllocatePool(EfiLoaderData, kernel_file_size,
-                                 &kernel_buffer));
-        ASSERT(kernel_file->Read
-               (kernel_file, &kernel_file_size, kernel_buffer));
-
-        Elf64_Ehdr *kernel_ehdr = (Elf64_Ehdr *) kernel_buffer;
-
-        UINTN kernel_first_addr, kernel_last_addr;
-        get_load_address_range(kernel_ehdr, &kernel_first_addr,
-                               &kernel_last_addr);
-        Print(L"kernel_first_addr = %lx, kernel_last_addr = %lx\n",
-              kernel_first_addr, kernel_last_addr);
-        ASSERT(gBS->AllocatePages(AllocateAddress, EfiLoaderData,
-                                  (kernel_last_addr - kernel_first_addr +
-                                   0xfff) / 0x1000, &kernel_first_addr));
-
-        if (kernel_first_addr != kernel_base_addr) {
-            Print(L"kernel_first_addr != 0x100000: %p\n",
-                  kernel_first_addr);
-            halt();
-        }
-
-        copy_load_segments(kernel_ehdr);
-
-        ASSERT(gBS->FreePool(kernel_buffer));
-    }
+    load_kernel(image_handle);
 
     {
         gBS->GetMemoryMap(&memory_map_size,
