@@ -104,6 +104,20 @@ void copy_load_segments(Elf64_Ehdr * ehdr)
     }
 }
 
+void read_file(EFI_FILE_PROTOCOL * file, VOID ** buffer)
+{
+    UINTN file_info_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINT8 file_info_buffer[file_info_size];
+    file->GetInfo(file,
+                  &gEfiFileInfoGuid, &file_info_size, file_info_buffer);
+
+    EFI_FILE_INFO *file_info = (EFI_FILE_INFO *) file_info_buffer;
+    UINTN file_size = file_info->FileSize;
+
+    ASSERT(gBS->AllocatePool(EfiLoaderData, file_size, buffer));
+    ASSERT(file->Read(file, &file_size, *buffer));
+}
+
 void load_kernel(EFI_HANDLE image_handle)
 {
     EFI_FILE_PROTOCOL *root_dir;
@@ -114,21 +128,8 @@ void load_kernel(EFI_HANDLE image_handle)
                           &kernel_file,
                           L"\\kernel.elf", EFI_FILE_MODE_READ, 0));
 
-    UINTN file_info_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-    UINT8 file_info_buffer[file_info_size];
-    kernel_file->GetInfo(kernel_file,
-                         &gEfiFileInfoGuid,
-                         &file_info_size, file_info_buffer);
-
-    EFI_FILE_INFO *file_info = (EFI_FILE_INFO *) file_info_buffer;
-    UINTN kernel_file_size = file_info->FileSize;
-
     VOID *kernel_buffer;
-
-    ASSERT(gBS->AllocatePool(EfiLoaderData, kernel_file_size,
-                             &kernel_buffer));
-    ASSERT(kernel_file->Read
-           (kernel_file, &kernel_file_size, kernel_buffer));
+    read_file(kernel_file, &kernel_buffer);
 
     Elf64_Ehdr *kernel_ehdr = (Elf64_Ehdr *) kernel_buffer;
 
