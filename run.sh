@@ -7,6 +7,12 @@ fi
 
 EFI_FILE=$1
 KERNEL_FILE=$2
+FAT_DISK='userland/fat_disk'
+
+if [ ! -e userland/fat_disk ]; then
+    echo "$FAT_DISK does not exist"
+    exit
+fi
 
 qemu-img create -f raw disk.img 200M
 mkfs.fat -n 'HOGEHOGE' -s 2 -f 2 -R 32 -F 32 disk.img
@@ -15,6 +21,7 @@ sudo mount -o loop disk.img mnt
 sudo mkdir -p mnt/EFI/BOOT
 sudo cp $EFI_FILE mnt/EFI/BOOT/BOOTX64.EFI
 sudo cp $KERNEL_FILE mnt/
+sudo cp $FAT_DISK mnt/
 sudo umount mnt
 
 qemu-system-x86_64 \

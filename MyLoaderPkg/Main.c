@@ -166,6 +166,15 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     EFI_FILE_PROTOCOL *root_dir;
     open_root_dir(image_handle, &root_dir);
 
+    VOID *volume_image;
+
+    {
+        EFI_FILE_PROTOCOL *volume_file;
+        ASSERT(root_dir->Open(root_dir, &volume_file, L"\\fat_disk",
+                              EFI_FILE_MODE_READ, 0));
+        read_file(volume_file, &volume_image);
+    }
+
     load_kernel(image_handle, root_dir);
 
     {
@@ -206,6 +215,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
         entry_params.memory_map.base = memory_map;
         entry_params.memory_map.size = memory_map_size;
         entry_params.memory_map.descriptor_size = map_descriptor_size;
+        entry_params.volume_image = volume_image;
 
         EntryParams *arg = &entry_params;
 

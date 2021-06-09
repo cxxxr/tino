@@ -8,6 +8,7 @@
 typedef struct {
     FrameBuffer *frame_buffer;
     MemoryMap memory_map;
+    void *volume_image;
 } EntryParams;
 
 #endif
