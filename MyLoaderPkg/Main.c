@@ -118,11 +118,8 @@ void read_file(EFI_FILE_PROTOCOL * file, VOID ** buffer)
     ASSERT(file->Read(file, &file_size, *buffer));
 }
 
-void load_kernel(EFI_HANDLE image_handle)
+void load_kernel(EFI_HANDLE image_handle, EFI_FILE_PROTOCOL *root_dir)
 {
-    EFI_FILE_PROTOCOL *root_dir;
-    open_root_dir(image_handle, &root_dir);
-
     EFI_FILE_PROTOCOL *kernel_file;
     ASSERT(root_dir->Open(root_dir,
                           &kernel_file,
@@ -166,7 +163,10 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
     open_gop(image_handle, &gop);
 
-    load_kernel(image_handle);
+    EFI_FILE_PROTOCOL *root_dir;
+    open_root_dir(image_handle, &root_dir);
+
+    load_kernel(image_handle, root_dir);
 
     {
         gBS->GetMemoryMap(&memory_map_size,
