@@ -142,8 +142,7 @@ void load_kernel(EFI_HANDLE image_handle)
                                0xfff) / 0x1000, &kernel_first_addr));
 
     if (kernel_first_addr != kernel_base_addr) {
-        Print(L"kernel_first_addr != 0x100000: %p\n",
-              kernel_first_addr);
+        Print(L"kernel_first_addr != 0x100000: %p\n", kernel_first_addr);
         halt();
     }
 
@@ -179,7 +178,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
 
     {
         UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
-        typedef void EntryPointType(EntryParams*);
+        typedef void EntryPointType(EntryParams *);
 
         PixelFormat pixel_format;
 
