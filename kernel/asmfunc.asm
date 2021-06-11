@@ -23,6 +23,19 @@ read_io_port8:
 	in al, dx
 	ret
 
+global write_io_port32
+write_io_port32:
+	mov dx, di
+	mov eax, esi
+	out dx, eax
+	ret
+
+global read_io_port32
+read_io_port32:
+	mov dx, di
+	in eax, dx
+	ret
+
 extern kernel_stack
 extern kernel_entry
 
