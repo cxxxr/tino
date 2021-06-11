@@ -5,6 +5,7 @@
 #include "gdt.h"
 #include "paging.h"
 #include "memory.h"
+#include "console.h"
 
 uint8 kernel_stack[1024 * 1024];
 
@@ -18,14 +19,11 @@ void kernel_entry(EntryParams *params)
     init_page_table();
     init_memory(&memory_map);
 
-    draw_rectangle(frame_buffer, 0, 0,
-                   frame_buffer->horizontal_resolution,
-                   frame_buffer->vertical_resolution, 0xffffff);
+    Console console;
 
-    // while (1) __asm__("hlt");
+    console_init(&console, frame_buffer);
 
-    while (1) {
-        char c = serial_read_char();
-        print_char(c);
-    }
+    console_input(&console);
+
+    while (1) __asm__("hlt");
 }
