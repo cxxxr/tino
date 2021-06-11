@@ -22,18 +22,17 @@ static void init_serial(const uint16 port)
 void init_serial_ports(void)
 {
     init_serial(PORT);
-    init_serial(PORT2);
 }
 
 static int serial_received(void)
 {
-    return read_io_port8(PORT2 + 5) & 1;
+    return read_io_port8(PORT + 5) & 1;
 }
 
 char serial_read_char(void)
 {
     while (!serial_received());
-    return read_io_port8(PORT2);
+    return read_io_port8(PORT);
 }
 
 static int is_transmit_empty(void)

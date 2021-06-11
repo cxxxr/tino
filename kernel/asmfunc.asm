@@ -6,6 +6,7 @@ section .text
 ; rax, eax, ax, ah:al
 ; rsi, esi, si, sil
 ; rcx, ecx, cx, ch:cl
+; rdi, edi, di, dil
 
 ; void write_io_port8(uint16 addr, uint8 data)
 global write_io_port8
@@ -18,7 +19,7 @@ write_io_port8:
 ; uint8 read_io_port8(uint16 addr)
 global read_io_port8
 read_io_port8:
-	mov edx, ecx
+	mov edx, edi
 	in al, dx
 	ret
 

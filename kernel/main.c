@@ -22,5 +22,10 @@ void kernel_entry(EntryParams *params)
                    frame_buffer->horizontal_resolution,
                    frame_buffer->vertical_resolution, 0xffffff);
 
-    while (1) __asm__("hlt");
+    // while (1) __asm__("hlt");
+
+    while (1) {
+        char c = serial_read_char();
+        print_char(c);
+    }
 }
