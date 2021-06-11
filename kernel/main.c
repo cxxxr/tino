@@ -23,7 +23,12 @@ void kernel_entry(EntryParams *params)
 
     console_init(&console, frame_buffer);
 
-    console_input(&console);
 
-    while (1) __asm__("hlt");
+    char str[128];
+
+    while (1) {
+        console_input(&console, str, 128);
+        print_string(str);
+        print_char('\n');
+    }
 }

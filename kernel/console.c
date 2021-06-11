@@ -36,10 +36,19 @@ void console_print_string(Console *console, const char *str)
     }
 }
 
-void console_input(Console *console)
+int console_input(Console *console, char *buffer, int size)
 {
+    int i = 0;
+
     while (1) {
         char c = serial_read_char();
         console_print_char(console, c);
+        if (c == '\r') {
+            break;
+        }
+        buffer[i++] = c;
+        if (i == size) break;
     }
+
+    return i;
 }

@@ -14,6 +14,6 @@ typedef struct console {
 void console_init(Console *console, FrameBuffer *frame_buffer);
 void console_print_char(Console *console, char c);
 void console_print_string(Console *console, const char *str);
-void console_input(Console *console);
+int console_input(Console *console, char *buffer, int size);
 
 #endif
