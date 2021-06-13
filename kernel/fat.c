@@ -1,5 +1,6 @@
 #include "fat.h"
 #include "serial.h"
+#include "general.h"
 
 void fat_init(Fat * fat, void *volume_image)
 {
@@ -44,6 +45,29 @@ static FileName convert_file_name(DirectoryEntry * entry)
     return filename;
 }
 
+static FileName make_file_name(const unsigned char *name, const unsigned char *ext)
+{
+    FileName file;
+    for (int i = 0; i < 9; i++) file.name[i] = 0;
+    for (int i = 0; i < 4; i++) file.ext[i] = 0;
+
+    for (int i = 0; name[i]; i++) {
+        file.name[i] = name[i];
+    }
+    for (int i = 0; ext[i]; i++) {
+        file.ext[i] = ext[i];
+    }
+    return file;
+}
+
+static void print_file_name(FileName filename)
+{
+    print_string(filename.name);
+    print_char('.');
+    print_string(filename.ext);
+    print_char('\n');
+}
+
 void fat_list_root_dir(Fat * fat)
 {
     DirectoryEntry *dir_base =
@@ -64,9 +88,63 @@ void fat_list_root_dir(Fat * fat)
             continue;
 
         FileName filename = convert_file_name(entry);
-        print_string(filename.name);
-        print_char('.');
-        print_string(filename.ext);
-        print_char('\n');
+        print_file_name(filename);
+    }
+}
+
+static int is_same_file(FileName file1, FileName file2)
+{
+    for (int i = 0; i < 9; i++) {
+        if (file1.name[i] != file2.name[i]) {
+            // print_string("diff name: ");
+            // print_char(file1.name[i]);
+            // print_char(' ');
+            // print_char(file2.name[i]);
+            // print_char('\n');
+            return 0;
+        }
+        if (file1.name[i] == 0) break;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (file1.ext[i] != file2.ext[i]) {
+            // print_string("diff ext: ");
+            // print_uint64(file1.ext[i]);
+            // print_char(' ');
+            // print_uint64(file2.ext[i]);
+            // print_char('\n');
+            return 0;
+        }
+        if (file1.ext[i] == 0) break;
+    }
+
+    return 1;
+}
+
+static DirectoryEntry *find_directory_entry(Fat *fat, FileName filename)
+{
+    DirectoryEntry *dir_base =
+        (DirectoryEntry *) cluster_address(fat, fat->bpb->root_cluster);
+    int entries_per_cluster =
+        (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
+         fat->bpb->sectors_per_cluster);
+    for (int i = 0; i < entries_per_cluster; i++) {
+        DirectoryEntry *entry = dir_base + i;
+        if (is_same_file(convert_file_name(entry), filename))
+            return entry;
+    }
+
+    return NULL;
+}
+
+void fat_test(Fat *fat)
+{
+    FileName file = make_file_name("HELLO", "C");
+
+    DirectoryEntry *entry = find_directory_entry(fat, file);
+    if (entry) {
+        print_string("OK\n");
+    } else {
+        print_string("NG\n");
     }
 }

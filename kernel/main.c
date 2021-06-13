@@ -28,6 +28,8 @@ void kernel_entry(EntryParams *params)
 
     fat_list_root_dir(&fat);
 
+    fat_test(&fat);
+
     while (1) __asm__("hlt");
 
     // char str[128];

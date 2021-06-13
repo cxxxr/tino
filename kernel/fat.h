@@ -71,5 +71,6 @@ typedef struct {
 
 void fat_init(Fat *fat, void *volume_image);
 void fat_list_root_dir(Fat *fat);
+void fat_test(Fat *fat);
 
 #endif
