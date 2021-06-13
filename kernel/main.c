@@ -26,7 +26,7 @@ void kernel_entry(EntryParams *params)
     Fat fat;
     fat_init(&fat, params->volume_image);
 
-    fat_list(&fat);
+    fat_list_root_dir(&fat);
 
     while (1) __asm__("hlt");
 

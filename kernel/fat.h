@@ -64,7 +64,12 @@ struct DirectoryEntry {
 
 typedef struct DirectoryEntry DirectoryEntry;
 
+typedef struct {
+  char name[9];
+  char ext[4];
+} FileName;
+
 void fat_init(Fat *fat, void *volume_image);
-void fat_list(Fat *fat);
+void fat_list_root_dir(Fat *fat);
 
 #endif
