@@ -17,6 +17,12 @@ static uint64 cluster_address(Fat * fat, int cluster)
     return (uint64) fat->bpb + offset;
 }
 
+static int entries_per_cluster(Fat *fat)
+{
+    return (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
+            fat->bpb->sectors_per_cluster);
+}
+
 static FileName convert_file_name(DirectoryEntry * entry)
 {
     FileName filename;
@@ -72,10 +78,7 @@ void fat_list_root_dir(Fat * fat)
 {
     DirectoryEntry *dir_base =
         (DirectoryEntry *) cluster_address(fat, fat->bpb->root_cluster);
-    int entries_per_cluster =
-        (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
-         fat->bpb->sectors_per_cluster);
-    for (int i = 0; i < entries_per_cluster; i++) {
+    for (int i = 0; i < entries_per_cluster(fat); i++) {
         DirectoryEntry *entry = dir_base + i;
 
         if (entry->name[0] == 0x00)
@@ -121,17 +124,29 @@ static int is_same_file(FileName file1, FileName file2)
     return 1;
 }
 
-static DirectoryEntry *find_directory_entry(Fat *fat, FileName filename)
+static unsigned long next_cluster(Fat *fat, unsigned long cluster)
 {
-    DirectoryEntry *dir_base =
-        (DirectoryEntry *) cluster_address(fat, fat->bpb->root_cluster);
-    int entries_per_cluster =
-        (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
-         fat->bpb->sectors_per_cluster);
-    for (int i = 0; i < entries_per_cluster; i++) {
-        DirectoryEntry *entry = dir_base + i;
-        if (is_same_file(convert_file_name(entry), filename))
-            return entry;
+    uint64 fat_offset = fat->bpb->reserved_sector_count * fat->bpb->bytes_per_sector;
+    uint32 *allocation_table = (uint32*)((uint32)fat->bpb + fat_offset);
+    return allocation_table[cluster];
+}
+
+static int is_eoc(uint32 cluster)
+{
+    return cluster >= 0x0ffffff8ul;
+}
+
+static DirectoryEntry *find_directory_entry(Fat *fat, FileName filename, uint32 dir_cluster)
+{
+    DirectoryEntry *dir_base = (DirectoryEntry *) cluster_address(fat, dir_cluster);
+
+    while (!is_eoc(dir_cluster)) {
+        for (int i = 0; i < entries_per_cluster(fat); i++) {
+            DirectoryEntry *entry = dir_base + i;
+            if (is_same_file(convert_file_name(entry), filename))
+                return entry;
+        }
+        dir_cluster = next_cluster(fat, dir_cluster);
     }
 
     return NULL;
@@ -141,7 +156,7 @@ void fat_test(Fat *fat)
 {
     FileName file = make_file_name("HELLO", "C");
 
-    DirectoryEntry *entry = find_directory_entry(fat, file);
+    DirectoryEntry *entry = find_directory_entry(fat, file, fat->bpb->root_cluster);
     if (entry) {
         print_string("OK\n");
     } else {
