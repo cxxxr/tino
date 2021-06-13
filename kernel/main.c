@@ -6,6 +6,7 @@
 #include "paging.h"
 #include "memory.h"
 #include "console.h"
+#include "fat.h"
 
 uint8 kernel_stack[1024 * 1024];
 
@@ -20,15 +21,19 @@ void kernel_entry(EntryParams *params)
     init_memory(&memory_map);
 
     Console console;
-
     console_init(&console, frame_buffer);
 
+    Fat fat;
+    fat_init(&fat, params->volume_image);
 
-    char str[128];
+    fat_list(&fat);
 
-    while (1) {
-        console_input(&console, str, 128);
-        print_string(str);
-        print_char('\n');
-    }
+    while (1) __asm__("hlt");
+
+    // char str[128];
+    // while (1) {
+    //     console_input(&console, str, 128);
+    //     print_string(str);
+    //     print_char('\n');
+    // }
 }
