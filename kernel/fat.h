@@ -4,33 +4,33 @@
 #include "int.h"
 
 struct BPB {
-  uint8 jump_boot[3];
-  char oem_name[8];
-  uint16 bytes_per_sector;
-  uint8 sectors_per_cluster;
-  uint16 reserved_sector_count;
-  uint8 num_fats;
-  uint16 root_entry_count;
-  uint16 total_sectors_16;
-  uint8 media;
-  uint16 fat_size_16;
-  uint16 sectors_per_track;
-  uint16 num_heads;
-  uint32 hidden_sectors;
-  uint32 total_sectors_32;
-  uint32 fat_size_32;
-  uint16 ext_flags;
-  uint16 fs_version;
-  uint32 root_cluster;
-  uint16 fs_info;
-  uint16 backup_boot_sector;
-  uint8 reserved[12];
-  uint8 drive_number;
-  uint8 reserved1;
-  uint8 boot_signature;
-  uint32 volume_id;
-  char volume_label[11];
-  char fs_type[8];
+    uint8 jump_boot[3];
+    char oem_name[8];
+    uint16 bytes_per_sector;
+    uint8 sectors_per_cluster;
+    uint16 reserved_sector_count;
+    uint8 num_fats;
+    uint16 root_entry_count;
+    uint16 total_sectors_16;
+    uint8 media;
+    uint16 fat_size_16;
+    uint16 sectors_per_track;
+    uint16 num_heads;
+    uint32 hidden_sectors;
+    uint32 total_sectors_32;
+    uint32 fat_size_32;
+    uint16 ext_flags;
+    uint16 fs_version;
+    uint32 root_cluster;
+    uint16 fs_info;
+    uint16 backup_boot_sector;
+    uint8 reserved[12];
+    uint8 drive_number;
+    uint8 reserved1;
+    uint8 boot_signature;
+    uint32 volume_id;
+    char volume_label[11];
+    char fs_type[8];
 } __attribute__((packed));
 
 typedef struct BPB BPB;
@@ -65,8 +65,8 @@ struct DirectoryEntry {
 typedef struct DirectoryEntry DirectoryEntry;
 
 typedef struct {
-  char name[9];
-  char ext[4];
+    char name[9];
+    char ext[4];
 } FileName;
 
 void fat_init(Fat *fat, void *volume_image);
