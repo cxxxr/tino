@@ -109,9 +109,9 @@ void fat_open_file(Fat * fat, FileName filename)
 
 void fat_test(Fat * fat)
 {
-    FileName file = make_file_name("HELLO", "C");
+    FileName filename = make_file_name("HELLO", "C");
 
-    fat_open_file(fat, file);
+    fat_open_file(fat, filename);
 }
 
 
@@ -146,46 +146,46 @@ static FileName convert_file_name(DirectoryEntry * entry)
 
 static FileName make_file_name(const char *name, const char *ext)
 {
-    FileName file;
+    FileName filename;
     for (int i = 0; i < 9; i++)
-        file.name[i] = 0;
+        filename.name[i] = 0;
     for (int i = 0; i < 4; i++)
-        file.ext[i] = 0;
+        filename.ext[i] = 0;
 
     for (int i = 0; name[i]; i++) {
-        file.name[i] = name[i];
+        filename.name[i] = name[i];
     }
     for (int i = 0; ext[i]; i++) {
-        file.ext[i] = ext[i];
+        filename.ext[i] = ext[i];
     }
-    return file;
+    return filename;
 }
 
-static int is_same_file(FileName file1, FileName file2)
+static int is_same_file(FileName filename1, FileName filename2)
 {
     for (int i = 0; i < 9; i++) {
-        if (file1.name[i] != file2.name[i]) {
+        if (filename1.name[i] != filename2.name[i]) {
             // print_string("diff name: ");
-            // print_char(file1.name[i]);
+            // print_char(filename1.name[i]);
             // print_char(' ');
-            // print_char(file2.name[i]);
+            // print_char(filename2.name[i]);
             // print_char('\n');
             return 0;
         }
-        if (file1.name[i] == 0)
+        if (filename1.name[i] == 0)
             break;
     }
 
     for (int i = 0; i < 4; i++) {
-        if (file1.ext[i] != file2.ext[i]) {
+        if (filename1.ext[i] != filename2.ext[i]) {
             // print_string("diff ext: ");
-            // print_uint64(file1.ext[i]);
+            // print_uint64(filename1.ext[i]);
             // print_char(' ');
-            // print_uint64(file2.ext[i]);
+            // print_uint64(filename2.ext[i]);
             // print_char('\n');
             return 0;
         }
-        if (file1.ext[i] == 0)
+        if (filename1.ext[i] == 0)
             break;
     }
 
