@@ -5,6 +5,9 @@
 void fat_init(Fat * fat, void *volume_image)
 {
     fat->bpb = (BPB *) volume_image;
+    fat->bytes_per_cluster = fat->bpb->bytes_per_sector * fat->bpb->sectors_per_cluster;
+    fat->entries_per_cluster = (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
+                                fat->bpb->sectors_per_cluster);
 }
 
 static uint64 cluster_address(Fat * fat, int cluster)
@@ -15,12 +18,6 @@ static uint64 cluster_address(Fat * fat, int cluster)
                          (cluster - 2) * fat->bpb->sectors_per_cluster);
     uint64 offset = sector_num * fat->bpb->bytes_per_sector;
     return (uint64) fat->bpb + offset;
-}
-
-static int entries_per_cluster(Fat *fat)
-{
-    return (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
-            fat->bpb->sectors_per_cluster);
 }
 
 static FileName convert_file_name(DirectoryEntry * entry)
@@ -51,11 +48,14 @@ static FileName convert_file_name(DirectoryEntry * entry)
     return filename;
 }
 
-static FileName make_file_name(const unsigned char *name, const unsigned char *ext)
+static FileName make_file_name(const unsigned char *name,
+                               const unsigned char *ext)
 {
     FileName file;
-    for (int i = 0; i < 9; i++) file.name[i] = 0;
-    for (int i = 0; i < 4; i++) file.ext[i] = 0;
+    for (int i = 0; i < 9; i++)
+        file.name[i] = 0;
+    for (int i = 0; i < 4; i++)
+        file.ext[i] = 0;
 
     for (int i = 0; name[i]; i++) {
         file.name[i] = name[i];
@@ -78,7 +78,7 @@ void fat_list_root_dir(Fat * fat)
 {
     DirectoryEntry *dir_base =
         (DirectoryEntry *) cluster_address(fat, fat->bpb->root_cluster);
-    for (int i = 0; i < entries_per_cluster(fat); i++) {
+    for (int i = 0; i < fat->entries_per_cluster; i++) {
         DirectoryEntry *entry = dir_base + i;
 
         if (entry->name[0] == 0x00)
@@ -106,7 +106,8 @@ static int is_same_file(FileName file1, FileName file2)
             // print_char('\n');
             return 0;
         }
-        if (file1.name[i] == 0) break;
+        if (file1.name[i] == 0)
+            break;
     }
 
     for (int i = 0; i < 4; i++) {
@@ -118,16 +119,18 @@ static int is_same_file(FileName file1, FileName file2)
             // print_char('\n');
             return 0;
         }
-        if (file1.ext[i] == 0) break;
+        if (file1.ext[i] == 0)
+            break;
     }
 
     return 1;
 }
 
-static unsigned long next_cluster(Fat *fat, unsigned long cluster)
+static unsigned long next_cluster(Fat * fat, unsigned long cluster)
 {
-    uint64 fat_offset = fat->bpb->reserved_sector_count * fat->bpb->bytes_per_sector;
-    uint32 *allocation_table = (uint32*)((uint32)fat->bpb + fat_offset);
+    uint64 fat_offset =
+        fat->bpb->reserved_sector_count * fat->bpb->bytes_per_sector;
+    uint32 *allocation_table = (uint32 *) ((uint32) fat->bpb + fat_offset);
     return allocation_table[cluster];
 }
 
@@ -136,12 +139,13 @@ static int is_eoc(uint32 cluster)
     return cluster >= 0x0ffffff8ul;
 }
 
-static DirectoryEntry *find_directory_entry(Fat *fat, FileName filename, uint32 dir_cluster)
+static DirectoryEntry *find_directory_entry(Fat * fat, FileName filename,
+                                            uint32 dir_cluster)
 {
-    DirectoryEntry *dir_base = (DirectoryEntry *) cluster_address(fat, dir_cluster);
-
     while (!is_eoc(dir_cluster)) {
-        for (int i = 0; i < entries_per_cluster(fat); i++) {
+        DirectoryEntry *dir_base =
+            (DirectoryEntry *) cluster_address(fat, dir_cluster);
+        for (int i = 0; i < fat->entries_per_cluster; i++) {
             DirectoryEntry *entry = dir_base + i;
             if (is_same_file(convert_file_name(entry), filename))
                 return entry;
@@ -152,14 +156,37 @@ static DirectoryEntry *find_directory_entry(Fat *fat, FileName filename, uint32 
     return NULL;
 }
 
-void fat_test(Fat *fat)
+static uint32 directory_entry_first_cluster(DirectoryEntry * entry)
+{
+    return (entry->first_cluster_low |
+            ((uint32) entry->first_cluster_high << 16));
+}
+
+void fat_open_file(Fat * fat, FileName filename)
+{
+    DirectoryEntry *entry =
+        find_directory_entry(fat, filename, fat->bpb->root_cluster);
+
+    if (!entry)
+        return;
+
+    uint32 remain_bytes = entry->file_size;
+
+    uint32 cluster = directory_entry_first_cluster(entry);
+    while (!is_eoc(cluster)) {
+        char *p = (char*)cluster_address(fat, cluster);
+        for (int i = 0; i < fat->bytes_per_cluster && i < remain_bytes; i++) {
+            print_char(*p);
+            p++;
+        }
+        remain_bytes -= fat->bytes_per_cluster;
+        cluster = next_cluster(fat, cluster);
+    }
+}
+
+void fat_test(Fat * fat)
 {
     FileName file = make_file_name("HELLO", "C");
 
-    DirectoryEntry *entry = find_directory_entry(fat, file, fat->bpb->root_cluster);
-    if (entry) {
-        print_string("OK\n");
-    } else {
-        print_string("NG\n");
-    }
+    fat_open_file(fat, file);
 }

@@ -37,6 +37,8 @@ typedef struct BPB BPB;
 
 typedef struct {
     BPB *bpb;
+    int bytes_per_cluster;
+    int entries_per_cluster;
 } Fat;
 
 #define ATTR_READ_ONLY 0x01
