@@ -4,12 +4,12 @@
 #include "int.h"
 
 typedef struct {
-    void *base;
-    uintn size;
-    uintn descriptor_size;
+  void *base;
+  uintn size;
+  uintn descriptor_size;
 } MemoryMap;
 
-void init_memory(MemoryMap* map);
-void* alloc(uint64 size);
+void init_memory(MemoryMap *map);
+void *alloc(uint64 size);
 
 #endif

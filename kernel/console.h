@@ -4,11 +4,11 @@
 #include "frame_buffer.h"
 
 typedef struct console {
-    int x;
-    int y;
-    int width;
-    int height;
-    FrameBuffer *frame_buffer;
+  int x;
+  int y;
+  int width;
+  int height;
+  FrameBuffer *frame_buffer;
 } Console;
 
 void console_init(Console *console, FrameBuffer *frame_buffer);
