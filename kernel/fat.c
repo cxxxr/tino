@@ -3,8 +3,7 @@
 #include "general.h"
 
 static FileName convert_file_name(DirectoryEntry * entry);
-static FileName make_file_name(const unsigned char *name,
-                               const unsigned char *ext);
+static FileName make_file_name(const char *name, const char *ext);
 static int is_same_file(FileName file1, FileName file2);
 static void print_file_name(FileName filename);
 
@@ -142,8 +141,7 @@ static FileName convert_file_name(DirectoryEntry * entry)
     return filename;
 }
 
-static FileName make_file_name(const unsigned char *name,
-                               const unsigned char *ext)
+static FileName make_file_name(const char *name, const char *ext)
 {
     FileName file;
     for (int i = 0; i < 9; i++)
