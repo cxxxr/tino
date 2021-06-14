@@ -165,11 +165,6 @@ static int is_same_file(FileName filename1, FileName filename2)
 {
     for (int i = 0; i < 9; i++) {
         if (filename1.name[i] != filename2.name[i]) {
-            // print_string("diff name: ");
-            // print_char(filename1.name[i]);
-            // print_char(' ');
-            // print_char(filename2.name[i]);
-            // print_char('\n');
             return 0;
         }
         if (filename1.name[i] == 0)
@@ -178,11 +173,6 @@ static int is_same_file(FileName filename1, FileName filename2)
 
     for (int i = 0; i < 4; i++) {
         if (filename1.ext[i] != filename2.ext[i]) {
-            // print_string("diff ext: ");
-            // print_uint64(filename1.ext[i]);
-            // print_char(' ');
-            // print_uint64(filename2.ext[i]);
-            // print_char('\n');
             return 0;
         }
         if (filename1.ext[i] == 0)
