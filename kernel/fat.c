@@ -10,9 +10,11 @@ static void print_file_name(FileName filename);
 void fat_init(Fat * fat, void *volume_image)
 {
     fat->bpb = (BPB *) volume_image;
-    fat->bytes_per_cluster = fat->bpb->bytes_per_sector * fat->bpb->sectors_per_cluster;
-    fat->entries_per_cluster = (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
-                                fat->bpb->sectors_per_cluster);
+    fat->bytes_per_cluster =
+        fat->bpb->bytes_per_sector * fat->bpb->sectors_per_cluster;
+    fat->entries_per_cluster =
+        (fat->bpb->bytes_per_sector / sizeof(DirectoryEntry) *
+         fat->bpb->sectors_per_cluster);
 }
 
 static uint64 cluster_address(Fat * fat, int cluster)
@@ -94,8 +96,9 @@ void fat_open_file(Fat * fat, FileName filename)
 
     uint32 cluster = directory_entry_first_cluster(entry);
     while (!is_eoc(cluster)) {
-        char *p = (char*)cluster_address(fat, cluster);
-        for (int i = 0; i < fat->bytes_per_cluster && i < remain_bytes; i++) {
+        char *p = (char *) cluster_address(fat, cluster);
+        for (int i = 0; i < fat->bytes_per_cluster && i < remain_bytes;
+             i++) {
             print_char(*p);
             p++;
         }
@@ -110,9 +113,9 @@ void fat_test(Fat * fat)
 
     fat_open_file(fat, file);
 }
-
-
 
+
+
 static FileName convert_file_name(DirectoryEntry * entry)
 {
     FileName filename;
