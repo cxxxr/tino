@@ -133,7 +133,7 @@ static FileName convert_file_name(DirectoryEntry * entry)
         }
     }
 
-    for (int i = 3; i >= 0; i--) {
+    for (int i = 2; i >= 0; i--) {
         if (entry->name[8 + i] == ' ') {
             filename.ext[i] = 0;
         } else {
@@ -195,7 +195,9 @@ static int is_same_file(FileName filename1, FileName filename2)
 static void print_file_name(FileName filename)
 {
     print_string(filename.name);
-    print_char('.');
-    print_string(filename.ext);
+    if (filename.ext[0]) {
+        print_char('.');
+        print_string(filename.ext);
+    }
     print_char('\n');
 }
