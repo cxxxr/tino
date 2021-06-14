@@ -2,6 +2,12 @@
 #include "serial.h"
 #include "general.h"
 
+static FileName convert_file_name(DirectoryEntry * entry);
+static FileName make_file_name(const unsigned char *name,
+                               const unsigned char *ext);
+static int is_same_file(FileName file1, FileName file2);
+static void print_file_name(FileName filename);
+
 void fat_init(Fat * fat, void *volume_image)
 {
     fat->bpb = (BPB *) volume_image;
@@ -18,60 +24,6 @@ static uint64 cluster_address(Fat * fat, int cluster)
                          (cluster - 2) * fat->bpb->sectors_per_cluster);
     uint64 offset = sector_num * fat->bpb->bytes_per_sector;
     return (uint64) fat->bpb + offset;
-}
-
-static FileName convert_file_name(DirectoryEntry * entry)
-{
-    FileName filename;
-
-    for (int i = 0; i < 8; i++)
-        filename.name[i] = entry->name[i];
-    for (int i = 0; i < 3; i++)
-        filename.ext[i] = entry->name[8 + i];
-
-    for (int i = 7; i >= 0; i--) {
-        if (entry->name[i] == ' ') {
-            filename.name[i] = 0;
-        } else {
-            break;
-        }
-    }
-
-    for (int i = 3; i >= 0; i--) {
-        if (entry->name[8 + i] == ' ') {
-            filename.ext[i] = 0;
-        } else {
-            break;
-        }
-    }
-
-    return filename;
-}
-
-static FileName make_file_name(const unsigned char *name,
-                               const unsigned char *ext)
-{
-    FileName file;
-    for (int i = 0; i < 9; i++)
-        file.name[i] = 0;
-    for (int i = 0; i < 4; i++)
-        file.ext[i] = 0;
-
-    for (int i = 0; name[i]; i++) {
-        file.name[i] = name[i];
-    }
-    for (int i = 0; ext[i]; i++) {
-        file.ext[i] = ext[i];
-    }
-    return file;
-}
-
-static void print_file_name(FileName filename)
-{
-    print_string(filename.name);
-    print_char('.');
-    print_string(filename.ext);
-    print_char('\n');
 }
 
 void fat_list_root_dir(Fat * fat)
@@ -93,37 +45,6 @@ void fat_list_root_dir(Fat * fat)
         FileName filename = convert_file_name(entry);
         print_file_name(filename);
     }
-}
-
-static int is_same_file(FileName file1, FileName file2)
-{
-    for (int i = 0; i < 9; i++) {
-        if (file1.name[i] != file2.name[i]) {
-            // print_string("diff name: ");
-            // print_char(file1.name[i]);
-            // print_char(' ');
-            // print_char(file2.name[i]);
-            // print_char('\n');
-            return 0;
-        }
-        if (file1.name[i] == 0)
-            break;
-    }
-
-    for (int i = 0; i < 4; i++) {
-        if (file1.ext[i] != file2.ext[i]) {
-            // print_string("diff ext: ");
-            // print_uint64(file1.ext[i]);
-            // print_char(' ');
-            // print_uint64(file2.ext[i]);
-            // print_char('\n');
-            return 0;
-        }
-        if (file1.ext[i] == 0)
-            break;
-    }
-
-    return 1;
 }
 
 static unsigned long next_cluster(Fat * fat, unsigned long cluster)
@@ -189,4 +110,91 @@ void fat_test(Fat * fat)
     FileName file = make_file_name("HELLO", "C");
 
     fat_open_file(fat, file);
+}
+
+
+
+static FileName convert_file_name(DirectoryEntry * entry)
+{
+    FileName filename;
+
+    for (int i = 0; i < 8; i++)
+        filename.name[i] = entry->name[i];
+    for (int i = 0; i < 3; i++)
+        filename.ext[i] = entry->name[8 + i];
+
+    for (int i = 7; i >= 0; i--) {
+        if (entry->name[i] == ' ') {
+            filename.name[i] = 0;
+        } else {
+            break;
+        }
+    }
+
+    for (int i = 3; i >= 0; i--) {
+        if (entry->name[8 + i] == ' ') {
+            filename.ext[i] = 0;
+        } else {
+            break;
+        }
+    }
+
+    return filename;
+}
+
+static FileName make_file_name(const unsigned char *name,
+                               const unsigned char *ext)
+{
+    FileName file;
+    for (int i = 0; i < 9; i++)
+        file.name[i] = 0;
+    for (int i = 0; i < 4; i++)
+        file.ext[i] = 0;
+
+    for (int i = 0; name[i]; i++) {
+        file.name[i] = name[i];
+    }
+    for (int i = 0; ext[i]; i++) {
+        file.ext[i] = ext[i];
+    }
+    return file;
+}
+
+static int is_same_file(FileName file1, FileName file2)
+{
+    for (int i = 0; i < 9; i++) {
+        if (file1.name[i] != file2.name[i]) {
+            // print_string("diff name: ");
+            // print_char(file1.name[i]);
+            // print_char(' ');
+            // print_char(file2.name[i]);
+            // print_char('\n');
+            return 0;
+        }
+        if (file1.name[i] == 0)
+            break;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (file1.ext[i] != file2.ext[i]) {
+            // print_string("diff ext: ");
+            // print_uint64(file1.ext[i]);
+            // print_char(' ');
+            // print_uint64(file2.ext[i]);
+            // print_char('\n');
+            return 0;
+        }
+        if (file1.ext[i] == 0)
+            break;
+    }
+
+    return 1;
+}
+
+static void print_file_name(FileName filename)
+{
+    print_string(filename.name);
+    print_char('.');
+    print_string(filename.ext);
+    print_char('\n');
 }
