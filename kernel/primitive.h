@@ -3,4 +3,6 @@
 
 #define NULL 0
 
+typedef int bool;
+
 #endif

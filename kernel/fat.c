@@ -1,5 +1,5 @@
 #include "fat.h"
-#include "general.h"
+#include "primitive.h"
 #include "serial.h"
 
 static FileName convert_file_name(DirectoryEntry *entry);
