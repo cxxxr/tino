@@ -9,11 +9,27 @@
 #include "primitive.h"
 #include "serial.h"
 #include "string.h"
+#include "elf.h"
 
 uint8 kernel_stack[1024 * 1024];
 
 Fat fat;
 Console console;
+
+bool is_elf_ident(const unsigned char *ident) {
+  return (ident[0] == 0x7f &&
+          ident[1] == 'E' &&
+          ident[2] == 'L' &&
+          ident[3] == 'F');
+}
+
+void execute_file(File *fp) {
+  Elf64_Ehdr *ehdr = (Elf64_Ehdr *)fp->buffer;
+  if (!is_elf_ident(ehdr->e_ident)) {
+    console_print_string(&console, "Invalid file\n");
+    return;
+  }
+}
 
 int execute_command(const char *str) {
   serial_write_string(str);
@@ -27,8 +43,7 @@ int execute_command(const char *str) {
       console_print_string(&console, str);
       console_print_string(&console, " does not exist\n");
     } else {
-      print_string((char*)fp->buffer);
-      print_char('\n');
+      execute_file(fp);
       close_file(fp);
     }
   }
