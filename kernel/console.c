@@ -47,6 +47,7 @@ int console_input(Console *console, char *buffer, int size) {
     if (i == size)
       break;
   }
+  buffer[i] = '\0';
 
   return i;
 }
