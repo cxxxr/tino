@@ -81,7 +81,8 @@ typedef struct {
 
 void fat_init(Fat *fat, void *volume_image);
 void fat_list_root_dir(Fat *fat);
-File* fat_open_file(Fat *fat, FileName filename);
+File* open_file(Fat *fat, FileName filename);
+void close_file(File *file);
 
 FileName string_to_filename(const char *str);
 

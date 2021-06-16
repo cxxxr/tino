@@ -22,13 +22,14 @@ int execute_command(const char *str) {
     fat_list_root_dir(&fat);
   } else {
     // strが長すぎると転ける
-    File *fp = fat_open_file(&fat, string_to_filename(str));
+    File *fp = open_file(&fat, string_to_filename(str));
     if (fp == NULL) {
       console_print_string(&console, str);
       console_print_string(&console, " does not exist\n");
     } else {
       print_string(fp->buffer);
       print_char('\n');
+      close_file(fp);
     }
   }
   return 0;

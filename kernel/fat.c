@@ -73,7 +73,7 @@ static uint32 directory_entry_first_cluster(DirectoryEntry *entry) {
   return (entry->first_cluster_low | ((uint32)entry->first_cluster_high << 16));
 }
 
-File *fat_open_file(Fat *fat, FileName filename) {
+File *open_file(Fat *fat, FileName filename) {
   DirectoryEntry *entry =
       find_directory_entry(fat, filename, fat->bpb->root_cluster);
 
@@ -103,6 +103,9 @@ File *fat_open_file(Fat *fat, FileName filename) {
   }
 
   return file;
+}
+
+void close_file(File *file) {
 }
 
 static FileName convert_file_name(DirectoryEntry *entry) {
