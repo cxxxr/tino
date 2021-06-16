@@ -1,9 +1,9 @@
 #include "fat.h"
+#include "memory.h"
 #include "primitive.h"
 #include "serial.h"
 
 static FileName convert_file_name(DirectoryEntry *entry);
-static FileName make_file_name(const char *name, const char *ext);
 static int is_same_file(FileName file1, FileName file2);
 static void print_file_name(FileName filename);
 
@@ -73,31 +73,36 @@ static uint32 directory_entry_first_cluster(DirectoryEntry *entry) {
   return (entry->first_cluster_low | ((uint32)entry->first_cluster_high << 16));
 }
 
-void fat_open_file(Fat *fat, FileName filename) {
+File *fat_open_file(Fat *fat, FileName filename) {
   DirectoryEntry *entry =
       find_directory_entry(fat, filename, fat->bpb->root_cluster);
 
   if (!entry)
-    return;
+    return NULL;
+
+  char *buffer = alloc(entry->file_size);
+  File *file = alloc(sizeof(File));
+  file->fat = fat;
+  file->entry = entry;
+  file->filename = filename;
+  file->buffer = buffer;
 
   uint32 remain_bytes = entry->file_size;
+  char *buffer_pointer = buffer;
 
   uint32 cluster = directory_entry_first_cluster(entry);
   while (!is_eoc(cluster)) {
     char *p = (char *)cluster_address(fat, cluster);
     for (int i = 0; i < fat->bytes_per_cluster && i < remain_bytes; i++) {
-      print_char(*p);
+      *buffer_pointer = *p;
+      buffer_pointer++;
       p++;
     }
     remain_bytes -= fat->bytes_per_cluster;
     cluster = next_cluster(fat, cluster);
   }
-}
 
-void fat_test(Fat *fat) {
-  FileName filename = make_file_name("HELLO", "C");
-
-  fat_open_file(fat, filename);
+  return file;
 }
 
 static FileName convert_file_name(DirectoryEntry *entry) {
@@ -124,22 +129,6 @@ static FileName convert_file_name(DirectoryEntry *entry) {
     }
   }
 
-  return filename;
-}
-
-static FileName make_file_name(const char *name, const char *ext) {
-  FileName filename;
-  for (int i = 0; i < 9; i++)
-    filename.name[i] = 0;
-  for (int i = 0; i < 4; i++)
-    filename.ext[i] = 0;
-
-  for (int i = 0; name[i]; i++) {
-    filename.name[i] = name[i];
-  }
-  for (int i = 0; ext[i]; i++) {
-    filename.ext[i] = ext[i];
-  }
   return filename;
 }
 
@@ -170,4 +159,22 @@ static void print_file_name(FileName filename) {
     print_string(filename.ext);
   }
   print_char('\n');
+}
+
+FileName string_to_filename(const char *str) {
+  FileName filename;
+
+  int i, j;
+
+  for (i = 0, j = 0; str[i] != '\0' && str[i] != '.'; i++, j++)
+    filename.name[j] = str[i];
+  filename.name[j] = '\0';
+
+  if (str[i] == '.')
+    i++;
+  for (j = 0; str[i] != '\0'; i++, j++)
+    filename.ext[j] = str[i];
+  filename.ext[j] = '\0';
+
+  return filename;
 }

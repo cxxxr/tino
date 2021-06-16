@@ -72,8 +72,17 @@ typedef struct {
   char ext[4];
 } FileName;
 
+typedef struct {
+  Fat *fat;
+  DirectoryEntry *entry;
+  FileName filename;
+  char *buffer;
+} File;
+
 void fat_init(Fat *fat, void *volume_image);
 void fat_list_root_dir(Fat *fat);
-void fat_test(Fat *fat);
+File* fat_open_file(Fat *fat, FileName filename);
+
+FileName string_to_filename(const char *str);
 
 #endif
