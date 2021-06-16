@@ -3,9 +3,9 @@
 
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
-#define FONT_COLOR 0x000000
+#define FONT_COLOR 0xFFFFFF
 
-#define CONSOLE_BG 0x00DDFF
+#define CONSOLE_BG 0x000000
 
 void console_init(Console *console, FrameBuffer *frame_buffer) {
   console->x = 0;
