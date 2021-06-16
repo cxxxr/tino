@@ -67,8 +67,10 @@ int console_input(Console *console, char *buffer, int size) {
     if (c == '\r') {
       break;
     } else if (c == 127) {
-      if (i > 0)
+      if (i > 0) {
         i--;
+        buffer[i] = '\0';
+      }
     } else {
       buffer[i++] = c;
       if (i == size)
