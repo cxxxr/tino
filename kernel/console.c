@@ -73,7 +73,7 @@ int console_input(Console *console, char *buffer, int size) {
       buffer[i++] = c;
       if (i == size)
         break;
-      buffer[i] = 0;
+      buffer[i] = '\0';
     }
   }
   buffer[i] = '\0';
