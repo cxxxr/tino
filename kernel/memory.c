@@ -52,8 +52,6 @@ void *alloc(uint64 size) {
 
   size = (size + sizeof(struct page) - 1) / sizeof(struct page) + 1;
 
-  print_uint64(size);
-
   for (p = head.next, q = &head;; q = p, p = p->next) {
     if (p->size >= size) {
       if (p->size == size) {
