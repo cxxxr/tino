@@ -8,10 +8,11 @@ typedef struct console {
   int y;
   int width;
   int height;
+  char prompt[32];
   FrameBuffer *frame_buffer;
 } Console;
 
-void console_init(Console *console, FrameBuffer *frame_buffer);
+void console_init(Console *console, FrameBuffer *frame_buffer, const char *prompt);
 void console_print_char(Console *console, char c);
 void console_print_string(Console *console, const char *str);
 int console_input(Console *console, char *buffer, int size);

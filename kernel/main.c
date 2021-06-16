@@ -8,17 +8,11 @@
 #include "paging.h"
 #include "primitive.h"
 #include "serial.h"
+#include "string.h"
 
 uint8 kernel_stack[1024 * 1024];
 
 Fat fat;
-
-bool string_equal(const char *str1, const char *str2) {
-  for (int i = 0; str1[i] != '\0' && str2[i] != '\0'; i++) {
-    if (str1[i] != str2[i]) return FALSE;
-  }
-  return TRUE;
-}
 
 int execute_command(const char *str) {
   serial_write_string(str);
@@ -39,13 +33,12 @@ void kernel_entry(EntryParams *params) {
   init_memory(&memory_map);
 
   Console console;
-  console_init(&console, frame_buffer);
+  console_init(&console, frame_buffer, "% ");
 
   fat_init(&fat, params->volume_image);
 
   char str[128];
   while (1) {
-    console_print_string(&console, "% ");
     console_input(&console, str, 128);
     execute_command(str);
   }

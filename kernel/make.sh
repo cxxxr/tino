@@ -7,6 +7,7 @@ clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions 
 clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -c memory.c
 clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -c console.c
 clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -c fat.c
+clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -c string.c
 clang -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -c main.c
 nasm -f elf64 -o asmfunc.o asmfunc.asm
-ld.lld --entry call_kernel -z norelro --image-base 0x100000 --static -o kernel.elf main.o serial.o frame_buffer.o asmfunc.o gdt.o paging.o memory.o console.o fat.o
+ld.lld --entry call_kernel -z norelro --image-base 0x100000 --static -o kernel.elf main.o serial.o frame_buffer.o asmfunc.o gdt.o paging.o memory.o console.o fat.o string.o
