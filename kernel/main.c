@@ -27,7 +27,7 @@ int execute_command(const char *str) {
       console_print_string(&console, str);
       console_print_string(&console, " does not exist\n");
     } else {
-      print_string(fp->buffer);
+      print_string((char*)fp->buffer);
       print_char('\n');
       close_file(fp);
     }

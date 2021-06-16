@@ -76,7 +76,7 @@ typedef struct {
   Fat *fat;
   DirectoryEntry *entry;
   FileName filename;
-  char *buffer;
+  uint8 *buffer;
 } File;
 
 void fat_init(Fat *fat, void *volume_image);

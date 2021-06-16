@@ -80,7 +80,7 @@ File *open_file(Fat *fat, FileName filename) {
   if (!entry)
     return NULL;
 
-  char *buffer = alloc(entry->file_size);
+  uint8 *buffer = alloc(entry->file_size);
   File *file = alloc(sizeof(File));
   file->fat = fat;
   file->entry = entry;
@@ -88,7 +88,7 @@ File *open_file(Fat *fat, FileName filename) {
   file->buffer = buffer;
 
   uint32 remain_bytes = entry->file_size;
-  char *buffer_pointer = buffer;
+  uint8 *buffer_pointer = buffer;
 
   uint32 cluster = directory_entry_first_cluster(entry);
   while (!is_eoc(cluster)) {
