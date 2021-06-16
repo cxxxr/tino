@@ -6,6 +6,6 @@ mkfs.fat -s 2 -f 2 -R 32 -F 32 fat_disk
 
 mkdir mnt
 sudo mount -o loop fat_disk mnt
-sudo cp -r hello mnt/hello
+sudo cp hello/* mnt/
 sudo umount mnt
 rmdir mnt
