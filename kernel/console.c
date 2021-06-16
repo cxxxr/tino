@@ -78,9 +78,6 @@ int console_input(Console *console, char *buffer, int size) {
   }
   buffer[i] = '\0';
 
-  print_string(buffer);
-  print_char('\n');
-
   console_print_newline(console);
 
   return i;
