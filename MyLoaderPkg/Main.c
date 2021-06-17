@@ -187,7 +187,7 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle,
     }
 
     {
-        UINT64 entry_addr = *((UINT64 *) (kernel_base_addr + 24));
+        UINT64 entry_addr = (UINT64)((Elf64_Ehdr*)kernel_base_addr)->e_entry;
         typedef void EntryPointType(EntryParams *);
 
         PixelFormat pixel_format;
