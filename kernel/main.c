@@ -29,10 +29,8 @@ int execute_file(File *fp) {
     console_print_string(&console, "Invalid file\n");
     return -1;
   }
-
   typedef int MainFunc(void);
-  MainFunc *entry = (MainFunc *)ehdr->e_entry;
-  return entry();
+  return ((MainFunc *)(fp->buffer + ehdr->e_entry))();
 }
 
 int execute_command(const char *str) {
