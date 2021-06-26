@@ -4,21 +4,6 @@
 
 void __chkstk(void) { return; }
 
-void print_uint64(EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
-  CHAR16 buffer[21];
-  int i = 20, column = 0;
-  for (;;) {
-    buffer[--i] = (value % 10) + '0';
-    column++;
-    value /= 10;
-    if (value == 0)
-      break;
-  }
-  buffer[20] = '\0';
-  SystemTable->con_out->output_string(SystemTable->con_out, buffer + i);
-  SystemTable->con_out->output_string(SystemTable->con_out, L" ");
-}
-
 EFI_STATUS open_gop(EFI_SYSTEM_TABLE *SystemTable, EFI_HANDLE ImageHandle,
                     EFI_GRAPHICS_OUTPUT_PROTOCOL **gop) {
   uintn num_gop_handles = 0;
@@ -94,27 +79,6 @@ EFI_STATUS EfiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
       EFI_SUCCESS) {
     SystemTable->con_out->output_string(SystemTable->con_out, L"ERROR!");
   }
-
-  // SystemTable->con_out->output_string(SystemTable->con_out, L"Hello, world!\n");
-  // SystemTable->con_out->SetCursorPosition(SystemTable->con_out, 0, 1);
-  // SystemTable->con_out->output_string(SystemTable->con_out, L"Hello, world!\n");
-  // SystemTable->con_out->SetCursorPosition(SystemTable->con_out, 0, 2);
-  // SystemTable->con_out->output_string(SystemTable->con_out, L"Hello, world!\n");
-
-  // int row = 1;
-  // for (uintn iter = (uintn)memory_map;
-  //      iter < (uintn)(memory_map + memory_map_size);
-  //      iter += descriptor_size) {
-  //   EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)iter;
-  //   SystemTable->con_out->SetCursorPosition(SystemTable->con_out, 0, row);
-  //   print_uint64(SystemTable, desc->type);
-  //   print_uint64(SystemTable, desc->physical_start);
-  //   print_uint64(SystemTable, desc->virtual_start);
-  //   print_uint64(SystemTable, desc->number_of_pages);
-  //   print_uint64(SystemTable, desc->attribute);
-  //   if (row == 26) break;
-  //   row++;
-  // }
 
   while (1)
     ;
