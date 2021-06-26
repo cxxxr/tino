@@ -4,7 +4,7 @@
 
 void __chkstk(void) { return; }
 
-void print_uint64(_EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
+void print_uint64(EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
   CHAR16 buffer[21];
   int i = 20, column = 0;
   for (;;) {
@@ -19,10 +19,10 @@ void print_uint64(_EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
   SystemTable->ConOut->OutputString(SystemTable->ConOut, L" ");
 }
 
-EFI_STATUS open_gop(_EFI_SYSTEM_TABLE *SystemTable, _EFI_HANDLE ImageHandle,
+EFI_STATUS open_gop(EFI_SYSTEM_TABLE *SystemTable, EFI_HANDLE ImageHandle,
                     EFI_GRAPHICS_OUTPUT_PROTOCOL **gop) {
   uintn num_gop_handles = 0;
-  _EFI_HANDLE *gop_handles = NULL;
+  EFI_HANDLE *gop_handles = NULL;
   EFI_GUID gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
   EFI_STATUS status;
   status = SystemTable->BootServices->LocateHandleBuffer(
@@ -41,8 +41,8 @@ EFI_STATUS open_gop(_EFI_SYSTEM_TABLE *SystemTable, _EFI_HANDLE ImageHandle,
   return status;
 }
 
-EFI_STATUS open_root_dir(_EFI_SYSTEM_TABLE *SystemTable,
-                         _EFI_HANDLE ImageHandle,
+EFI_STATUS open_root_dir(EFI_SYSTEM_TABLE *SystemTable,
+                         EFI_HANDLE ImageHandle,
                          EFI_FILE_PROTOCOL **root_dir) {
   EFI_LOADED_IMAGE_PROTOCOL *loaded_image;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fs;
@@ -67,11 +67,11 @@ EFI_STATUS open_root_dir(_EFI_SYSTEM_TABLE *SystemTable,
   return fs->OpenVolume(fs, root_dir);
 }
 
-EFI_STATUS EfiMain(_EFI_HANDLE ImageHandle, _EFI_SYSTEM_TABLE *SystemTable) {
+EFI_STATUS EfiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
   uint8 memory_map_buffer[1024 * 16];
   uintn memory_map_size = sizeof(memory_map_buffer);
-  _EFI_MEMORY_DESCRIPTOR *memory_map =
-      (_EFI_MEMORY_DESCRIPTOR *)memory_map_buffer;
+  EFI_MEMORY_DESCRIPTOR *memory_map =
+      (EFI_MEMORY_DESCRIPTOR *)memory_map_buffer;
   uintn map_key;
   uintn descriptor_size;
   uintn descriptor_version;
@@ -105,7 +105,7 @@ EFI_STATUS EfiMain(_EFI_HANDLE ImageHandle, _EFI_SYSTEM_TABLE *SystemTable) {
   // for (uintn iter = (uintn)memory_map;
   //      iter < (uintn)(memory_map + memory_map_size);
   //      iter += descriptor_size) {
-  //   _EFI_MEMORY_DESCRIPTOR *desc = (_EFI_MEMORY_DESCRIPTOR *)iter;
+  //   EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)iter;
   //   SystemTable->ConOut->SetCursorPosition(SystemTable->ConOut, 0, row);
   //   print_uint64(SystemTable, desc->type);
   //   print_uint64(SystemTable, desc->physical_start);
