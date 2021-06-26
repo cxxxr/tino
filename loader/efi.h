@@ -7,10 +7,10 @@ typedef uint64 EFI_STATUS;
 typedef unsigned short CHAR16;
 
 typedef struct {
-  uint32 Data1;
-  uint16 Data2;
-  uint16 Data3;
-  uint8 Data4[8];
+  uint32 data1;
+  uint16 data2;
+  uint16 data3;
+  uint8 data4[8];
 } GUID;
 
 typedef GUID EFI_GUID;
@@ -37,20 +37,20 @@ typedef GUID EFI_GUID;
   }
 
 typedef struct {
-  uint64 Signature;
-  uint32 Revision;
-  uint32 HeaderSize;
-  uint32 CRC32;
-  uint32 Reserved;
+  uint64 signature;
+  uint32 revision;
+  uint32 header_size;
+  uint32 crc32;
+  uint32 reserved;
 } EFI_TABLE_HEADER;
 
 typedef void *EFI_HANDLE;
 typedef void *EFI_EVENT;
 
 typedef struct {
-  void *Reset;
-  void *ReadKeyStroke;
-  EFI_EVENT WaitForKey;
+  void *reset;
+  void *read_key_stroke;
+  EFI_EVENT wait_for_key;
 } EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
 
 struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
@@ -62,41 +62,41 @@ typedef EFI_STATUS (*EFI_TEXT_SET_CURSOR_POSITION)(
     struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, uintn column, uintn row);
 
 typedef struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
-  void *Reset;
-  EFI_TEXT_STRING OutputString;
-  void *TestString;
-  void *QueryMode;
-  void *SetMode;
-  void *SetAttribute;
-  void *ClearScreen;
-  EFI_TEXT_SET_CURSOR_POSITION SetCursorPosition;
-  void *EnableCursor;
-  void *Mode;
+  void *reset;
+  EFI_TEXT_STRING output_string;
+  void *test_string;
+  void *query_mode;
+  void *set_mode;
+  void *set_attribute;
+  void *clear_screen;
+  EFI_TEXT_SET_CURSOR_POSITION set_cursor_position;
+  void *enable_cursor;
+  void *mode;
 } EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
 
 struct EFI_BOOT_SERVICES;
 
 typedef struct {
-  EFI_TABLE_HEADER Hdr;
-  char16 *FirmwareVendor;
-  uint32 FirmwareRevision;
-  EFI_HANDLE ConsoleInHandle;
-  EFI_SIMPLE_TEXT_INPUT_PROTOCOL *ConIn;
+  EFI_TABLE_HEADER hdr;
+  char16 *firmware_vendor;
+  uint32 firmware_revision;
+  EFI_HANDLE console_in_handle;
+  EFI_SIMPLE_TEXT_INPUT_PROTOCOL *con_in;
   EFI_HANDLE ConsoleOutHandle;
-  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *ConOut;
+  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *con_out;
   EFI_HANDLE StandardErrorHandle;
-  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *StdErr;
-  void *RuntimeServices;
-  struct EFI_BOOT_SERVICES *BootServices;
-  uintn NumberOfTableEntries;
-  void *ConfigurationTable;
+  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *std_err;
+  void *runtime_services;
+  struct EFI_BOOT_SERVICES *boot_services;
+  uintn number_of_table_entries;
+  void *configuration_table;
 } EFI_SYSTEM_TABLE;
 
 typedef struct {
-  uint32 RedMask;
-  uint32 GreenMask;
-  uint32 BlueMask;
-  uint32 ReservedMask;
+  uint32 red_mask;
+  uint32 green_mask;
+  uint32 blue_mask;
+  uint32 reserved_mask;
 } EFI_PIXEL_BITMASK;
 
 typedef enum {
@@ -125,10 +125,10 @@ typedef struct {
 } EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE;
 
 typedef struct {
-  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_QUERY_MODE*/ QueryMode;
-  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_SET_MODE*/ SetMode;
-  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_BLT*/ Blt;
-  EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *Mode;
+  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_QUERY_MODE*/ query_mode;
+  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_SET_MODE*/ set_mode;
+  void * /*EFI_GRAPHICS_OUTPUT_PROTOCOL_BLT*/ blt;
+  EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *mode;
 } EFI_GRAPHICS_OUTPUT_PROTOCOL;
 
 typedef uint64 EFI_PHYISICAL_ADDRESS;
@@ -173,40 +173,40 @@ typedef EFI_STATUS (*EFI_FILE_GET_INFO)(struct EFI_FILE_PROTOCOL *This,
                                         uintn *BufferSize, void *Buffer);
 
 typedef struct EFI_FILE_PROTOCOL {
-  uint64 Revision;
-  EFI_FILE_OPEN Open;
-  void *Close;
-  void *Delete;
-  void *Read;
-  void *Write;
-  void *GetPosition;
-  void *SetPosition;
-  EFI_FILE_GET_INFO GetInfo;
-  void *SetInfo;
-  void *Flush;
-  void *OpenEx;
-  void *AReadEx;
-  void *WriteEx;
-  void *FlushEx;
+  uint64 revision;
+  EFI_FILE_OPEN open;
+  void *close;
+  void *delete;
+  void *read;
+  void *write;
+  void *get_position;
+  void *set_position;
+  EFI_FILE_GET_INFO get_info;
+  void *set_info;
+  void *flush;
+  void *open_ex;
+  void *read_ex;
+  void *write_ex;
+  void *flush_ex;
 } EFI_FILE_PROTOCOL;
 
 typedef struct {
-  uint32 Revision;
-  EFI_HANDLE ParentHandle;
-  EFI_SYSTEM_TABLE *SystemTable;
+  uint32 revision;
+  EFI_HANDLE parent_handle;
+  EFI_SYSTEM_TABLE *system_table;
 
-  EFI_HANDLE DeviceHandle;
-  void /*EFI_DEVICE_PATH_PROTOCOL*/ *FilePath;
-  void *Reserved;
+  EFI_HANDLE device_handle;
+  void /*EFI_DEVICE_PATH_PROTOCOL*/ *file_path;
+  void *reserved;
 
-  uint32 LoadOptionSize;
-  void *LoadOptions;
+  uint32 load_option_size;
+  void *load_options;
 
-  void *ImageBase;
-  uint64 ImageSize;
-  EFI_MEMORY_TYPE ImageCodeType;
-  EFI_MEMORY_TYPE ImageDataType;
-  void * /*EFI_IMAGE_UNLOAD*/ Unload;
+  void *image_base;
+  uint64 image_size;
+  EFI_MEMORY_TYPE image_code_type;
+  EFI_MEMORY_TYPE image_data_type;
+  void * /*EFI_IMAGE_UNLOAD*/ un_load;
 } EFI_LOADED_IMAGE_PROTOCOL;
 
 struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL;
@@ -215,8 +215,8 @@ typedef EFI_STATUS (*EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME)(
     struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *This, EFI_FILE_PROTOCOL **Root);
 
 typedef struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL {
-  uint64 Revision;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME OpenVolume;
+  uint64 revision;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME open_volume;
 } EFI_SIMPLE_FILE_SYSTEM_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_GET_MEMORY_MAP)(uintn *MemoryMapSize,
@@ -248,95 +248,95 @@ typedef struct EFI_BOOT_SERVICES {
   ///
   /// The table header for the EFI Boot Services Table.
   ///
-  EFI_TABLE_HEADER Hdr;
+  EFI_TABLE_HEADER hdr;
 
   //
   // Task Priority Services
   //
-  void *RaiseTPL;
-  void *RestoreTPL;
+  void *raise_tpl;
+  void *restore_tpl;
 
   //
   // Memory Services
   //
-  void *AllocatePages;
-  void *FreePages;
-  EFI_GET_MEMORY_MAP GetMemoryMap;
-  void *AllocatePool;
-  EFI_FREE_POOL FreePool;
+  void *allocate_pages;
+  void *free_pages;
+  EFI_GET_MEMORY_MAP get_memory_map;
+  void *allocate_pool;
+  EFI_FREE_POOL free_pool;
 
   //
   // Event & Timer Services
   //
-  void *CreateEvent;
-  void *SetTimer;
-  void *WaitForEvent;
-  void *SignalEvent;
-  void *CloseEvent;
-  void *CheckEvent;
+  void *create_event;
+  void *set_timer;
+  void *wait_for_event;
+  void *signal_event;
+  void *close_event;
+  void *check_event;
 
   //
   // Protocol Handler Services
   //
-  void *InstallProtocolInterface;
-  void *ReinstallProtocolInterface;
-  void *UninstallProtocolInterface;
-  void *HandleProtocol;
-  void *Reserved;
-  void *RegisterProtocolNotify;
-  void *LocateHandle;
-  void *LocateDevicePath;
-  void *InstallConfigurationTable;
+  void *install_protocol_interface;
+  void *reinstall_protocol_interface;
+  void *uninstall_protocol_interface;
+  void *handle_protocol;
+  void *reserved;
+  void *register_protocol_notify;
+  void *locate_handle;
+  void *locate_device_path;
+  void *install_configuration_table;
 
   //
   // Image Services
   //
-  void *LoadImage;
-  void *StartImage;
-  void *Exit;
-  void *UnloadImage;
-  EFI_EXIT_BOOT_SERVICES ExitBootServices;
+  void *load_image;
+  void *start_image;
+  void *exit;
+  void *unload_image;
+  EFI_EXIT_BOOT_SERVICES exit_boot_services;
 
   //
   // Miscellaneous Services
   //
-  void *GetNextMonotonicCount;
-  void *Stall;
-  void *SetWatchdogTimer;
+  void *get_next_monotonic_count;
+  void *stall;
+  void *set_watchdog_timer;
 
   //
   // DriverSupport Services
   //
-  void *ConnectController;
-  void *DisconnectController;
+  void *connect_controller;
+  void *disconnect_controller;
 
   //
   // Open and Close Protocol Services
   //
-  EFI_OPEN_PROTOCOL OpenProtocol;
-  void *CloseProtocol;
-  void *OpenProtocolInformation;
+  EFI_OPEN_PROTOCOL open_protocol;
+  void *close_protocol;
+  void *open_protocol_information;
 
   //
   // Library Services
   //
-  void *ProtocolsPerHandle;
-  EFI_LOCATE_HANDLE_BUFFER LocateHandleBuffer;
-  void *LocateProtocol;
-  void *InstallMultipleProtocolInterfaces;
-  void *UninstallMultipleProtocolInterfaces;
+  void *protocols_per_handle;
+  EFI_LOCATE_HANDLE_BUFFER locate_handle_buffer;
+  void *locate_protocol;
+  void *install_multiple_protocol_interfaces;
+  void *uninstall_multiple_protocol_interfaces;
 
   //
   // 32-bit CRC Services
   //
-  void *CalculateCrc32;
+  void *calculate_crc32;
 
   //
   // Miscellaneous Services
   //
-  void *CopyMem;
-  void *SetMem;
-  void *CreateEventEx;
+  void *copy_mem;
+  void *set_mem;
+  void *create_event_ex;
 } EFI_BOOT_SERVICES;
 
 #define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL 0x00000001
