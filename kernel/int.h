@@ -7,5 +7,6 @@ typedef unsigned long long int uint64;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
 typedef uint64 uintn;
+typedef unsigned short char16;
 
 #endif
