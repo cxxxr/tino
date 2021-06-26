@@ -3,6 +3,7 @@
 
 #include "../kernel/int.h"
 
+/// guid
 typedef struct {
   uint32 data1;
   uint16 data2;
@@ -31,10 +32,22 @@ typedef struct {
     }                                                                          \
   }
 
+///
+#define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL  0x00000001
+#define EFI_OPEN_PROTOCOL_GET_PROTOCOL        0x00000002
+#define EFI_OPEN_PROTOCOL_TEST_PROTOCOL       0x00000004
+#define EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER 0x00000008
+#define EFI_OPEN_PROTOCOL_BY_DRIVER           0x00000010
+#define EFI_OPEN_PROTOCOL_EXCLUSIVE           0x00000020
+
+///
 typedef void *EFI_HANDLE;
 typedef void *EFI_EVENT;
 typedef uint64 EFI_STATUS;
+typedef uint64 EFI_PHYISICAL_ADDRESS;
+typedef uint64 EFI_VIRTUAL_ADDRESS;
 
+/// table header
 typedef struct {
   uint64 signature;
   uint32 revision;
@@ -43,12 +56,34 @@ typedef struct {
   uint32 reserved;
 } EFI_TABLE_HEADER;
 
+/// memory type
+typedef enum {
+  EFI_RESERVED_MEMORY_TYPE,
+  EFI_LOADER_CODE,
+  EFI_LOADER_DATA,
+  EFI_BOOT_SERVICES_CODE,
+  EFI_BOOT_SERVICES_DATA,
+  EFI_RUNTIME_SERVICES_CODE,
+  EFI_RUNTIME_SERVICES_DATA,
+  EFI_CONVENTIONAL_MEMORY,
+  EFI_UNUSABLE_MEMORY,
+  EFI_ACPI_RECLAIM_MEMORY,
+  EFI_ACPI_MEMORY_NVS,
+  EFI_MEMORY_MAPPED_IO,
+  EFI_MEMORY_MAPPED_IO_PORT_SPACE,
+  EFI_PAL_CODE,
+  EFI_PERSISTENT_MEMORY,
+  EFI_MAX_MEMORY_TYP,
+} EFI_MEMORY_TYPE;
+
+/// simple text input protocol
 typedef struct {
   void *reset;
   void *read_key_stroke;
   EFI_EVENT wait_for_key;
 } EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
 
+/// simple text output protocol
 struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_TEXT_STRING)(
@@ -70,24 +105,7 @@ typedef struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
   void *mode;
 } EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
 
-struct EFI_BOOT_SERVICES;
-
-typedef struct {
-  EFI_TABLE_HEADER hdr;
-  char16 *firmware_vendor;
-  uint32 firmware_revision;
-  EFI_HANDLE console_in_handle;
-  EFI_SIMPLE_TEXT_INPUT_PROTOCOL *con_in;
-  EFI_HANDLE ConsoleOutHandle;
-  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *con_out;
-  EFI_HANDLE StandardErrorHandle;
-  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *std_err;
-  void *runtime_services;
-  struct EFI_BOOT_SERVICES *boot_services;
-  uintn number_of_table_entries;
-  void *configuration_table;
-} EFI_SYSTEM_TABLE;
-
+/// graphics output protocol
 typedef struct {
   uint32 red_mask;
   uint32 green_mask;
@@ -127,36 +145,7 @@ typedef struct {
   EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *mode;
 } EFI_GRAPHICS_OUTPUT_PROTOCOL;
 
-typedef uint64 EFI_PHYISICAL_ADDRESS;
-typedef uint64 EFI_VIRTUAL_ADDRESS;
-
-typedef struct {
-  uint32 type;
-  EFI_PHYISICAL_ADDRESS physical_start;
-  EFI_VIRTUAL_ADDRESS virtual_start;
-  uint64 number_of_pages;
-  uint64 attribute;
-} EFI_MEMORY_DESCRIPTOR;
-
-typedef enum {
-  EFI_RESERVED_MEMORY_TYPE,
-  EFI_LOADER_CODE,
-  EFI_LOADER_DATA,
-  EFI_BOOT_SERVICES_CODE,
-  EFI_BOOT_SERVICES_DATA,
-  EFI_RUNTIME_SERVICES_CODE,
-  EFI_RUNTIME_SERVICES_DATA,
-  EFI_CONVENTIONAL_MEMORY,
-  EFI_UNUSABLE_MEMORY,
-  EFI_ACPI_RECLAIM_MEMORY,
-  EFI_ACPI_MEMORY_NVS,
-  EFI_MEMORY_MAPPED_IO,
-  EFI_MEMORY_MAPPED_IO_PORT_SPACE,
-  EFI_PAL_CODE,
-  EFI_PERSISTENT_MEMORY,
-  EFI_MAX_MEMORY_TYP,
-} EFI_MEMORY_TYPE;
-
+/// file protocol
 struct EFI_FILE_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_FILE_OPEN)(struct EFI_FILE_PROTOCOL *This,
@@ -186,25 +175,7 @@ typedef struct EFI_FILE_PROTOCOL {
   void *flush_ex;
 } EFI_FILE_PROTOCOL;
 
-typedef struct {
-  uint32 revision;
-  EFI_HANDLE parent_handle;
-  EFI_SYSTEM_TABLE *system_table;
-
-  EFI_HANDLE device_handle;
-  void /*EFI_DEVICE_PATH_PROTOCOL*/ *file_path;
-  void *reserved;
-
-  uint32 load_option_size;
-  void *load_options;
-
-  void *image_base;
-  uint64 image_size;
-  EFI_MEMORY_TYPE image_code_type;
-  EFI_MEMORY_TYPE image_data_type;
-  void * /*EFI_IMAGE_UNLOAD*/ un_load;
-} EFI_LOADED_IMAGE_PROTOCOL;
-
+/// simple file system protocol
 struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME)(
@@ -214,6 +185,15 @@ typedef struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL {
   uint64 revision;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME open_volume;
 } EFI_SIMPLE_FILE_SYSTEM_PROTOCOL;
+
+/// boot services
+typedef struct {
+  uint32 type;
+  EFI_PHYISICAL_ADDRESS physical_start;
+  EFI_VIRTUAL_ADDRESS virtual_start;
+  uint64 number_of_pages;
+  uint64 attribute;
+} EFI_MEMORY_DESCRIPTOR;
 
 typedef EFI_STATUS (*EFI_GET_MEMORY_MAP)(uintn *MemoryMapSize,
                                          EFI_MEMORY_DESCRIPTOR *MemoryMap,
@@ -335,12 +315,42 @@ typedef struct EFI_BOOT_SERVICES {
   void *create_event_ex;
 } EFI_BOOT_SERVICES;
 
-#define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL 0x00000001
-#define EFI_OPEN_PROTOCOL_GET_PROTOCOL 0x00000002
-#define EFI_OPEN_PROTOCOL_TEST_PROTOCOL 0x00000004
-#define EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER 0x00000008
-#define EFI_OPEN_PROTOCOL_BY_DRIVER 0x00000010
-#define EFI_OPEN_PROTOCOL_EXCLUSIVE 0x00000020
+/// system table
+typedef struct {
+  EFI_TABLE_HEADER hdr;
+  char16 *firmware_vendor;
+  uint32 firmware_revision;
+  EFI_HANDLE console_in_handle;
+  EFI_SIMPLE_TEXT_INPUT_PROTOCOL *con_in;
+  EFI_HANDLE ConsoleOutHandle;
+  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *con_out;
+  EFI_HANDLE StandardErrorHandle;
+  EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *std_err;
+  void *runtime_services;
+  EFI_BOOT_SERVICES *boot_services;
+  uintn number_of_table_entries;
+  void *configuration_table;
+} EFI_SYSTEM_TABLE;
+
+/// loaded image protocol
+typedef struct {
+  uint32 revision;
+  EFI_HANDLE parent_handle;
+  EFI_SYSTEM_TABLE *system_table;
+
+  EFI_HANDLE device_handle;
+  void /*EFI_DEVICE_PATH_PROTOCOL*/ *file_path;
+  void *reserved;
+
+  uint32 load_option_size;
+  void *load_options;
+
+  void *image_base;
+  uint64 image_size;
+  EFI_MEMORY_TYPE image_code_type;
+  EFI_MEMORY_TYPE image_data_type;
+  void * /*EFI_IMAGE_UNLOAD*/ un_load;
+} EFI_LOADED_IMAGE_PROTOCOL;
 
 #define EFI_SUCCESS 0
 
