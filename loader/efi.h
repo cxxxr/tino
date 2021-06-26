@@ -3,9 +3,6 @@
 
 #include "../kernel/int.h"
 
-typedef uint64 EFI_STATUS;
-typedef unsigned short CHAR16;
-
 typedef struct {
   uint32 data1;
   uint16 data2;
@@ -34,6 +31,11 @@ typedef struct {
     }                                                                          \
   }
 
+typedef void *EFI_HANDLE;
+typedef void *EFI_EVENT;
+typedef uint64 EFI_STATUS;
+typedef unsigned short CHAR16;
+
 typedef struct {
   uint64 signature;
   uint32 revision;
@@ -41,9 +43,6 @@ typedef struct {
   uint32 crc32;
   uint32 reserved;
 } EFI_TABLE_HEADER;
-
-typedef void *EFI_HANDLE;
-typedef void *EFI_EVENT;
 
 typedef struct {
   void *reset;
