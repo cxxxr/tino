@@ -34,7 +34,6 @@ typedef struct {
 typedef void *EFI_HANDLE;
 typedef void *EFI_EVENT;
 typedef uint64 EFI_STATUS;
-typedef unsigned short CHAR16;
 
 typedef struct {
   uint64 signature;
@@ -53,7 +52,7 @@ typedef struct {
 struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_TEXT_STRING)(
-    struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, CHAR16 *String);
+    struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, char16 *String);
 
 typedef EFI_STATUS (*EFI_TEXT_SET_CURSOR_POSITION)(
     struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, uintn column, uintn row);
