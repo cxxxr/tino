@@ -11,9 +11,7 @@ typedef struct {
   uint16 data2;
   uint16 data3;
   uint8 data4[8];
-} GUID;
-
-typedef GUID EFI_GUID;
+} EFI_GUID;
 
 #define EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID                                      \
   {                                                                            \
