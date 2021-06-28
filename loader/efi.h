@@ -220,6 +220,10 @@ typedef EFI_STATUS (*EFI_OPEN_PROTOCOL)(EFI_HANDLE Handle, EFI_GUID *Protocol,
 
 typedef EFI_STATUS (*EFI_FREE_POOL)(void *Buffer);
 
+typedef void (*EFI_COPY_MEM)(void *destination, void *source, uintn length);
+
+typedef void (*EFI_SET_MEM)(void *buffer, uintn size, uint8 value);
+
 typedef struct EFI_BOOT_SERVICES {
   ///
   /// The table header for the EFI Boot Services Table.
@@ -310,8 +314,8 @@ typedef struct EFI_BOOT_SERVICES {
   //
   // Miscellaneous Services
   //
-  void *copy_mem;
-  void *set_mem;
+  EFI_COPY_MEM copy_mem;
+  EFI_SET_MEM set_mem;
   void *create_event_ex;
 } EFI_BOOT_SERVICES;
 
