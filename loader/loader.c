@@ -72,8 +72,8 @@ EFI_STATUS EfiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
   }
 
   system_table->boot_services->get_memory_map(&memory_map_size, memory_map,
-                                          &map_key, &descriptor_size,
-                                          &descriptor_version);
+                                              &map_key, &descriptor_size,
+                                              &descriptor_version);
 
   if (system_table->boot_services->exit_boot_services(image_handle, map_key) !=
       EFI_SUCCESS) {
