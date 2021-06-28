@@ -1,7 +1,7 @@
 #!/bin/sh
 
 clang -target x86_64-pc-win32-coff -mno-red-zone -fno-stack-protector -fshort-wchar -Wall -c loader.c 
-lld-link /subsystem:efi_application /entry:EfiMain /out:loader.efi loader.o
+lld-link /subsystem:efi_application /entry:efi_main /out:loader.efi loader.o
 
 EFI_FILE=loader.efi
 

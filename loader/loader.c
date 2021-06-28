@@ -52,7 +52,7 @@ EFI_STATUS open_root_dir(EFI_SYSTEM_TABLE *system_table,
   return fs->open_volume(fs, root_dir);
 }
 
-EFI_STATUS EfiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
+EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
   uint8 memory_map_buffer[1024 * 16];
   uintn memory_map_size = sizeof(memory_map_buffer);
   EFI_MEMORY_DESCRIPTOR *memory_map =
