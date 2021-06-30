@@ -1,7 +1,7 @@
 #ifndef FRAME_BUFFER_H_
 #define FRAME_BUFFER_H_
 
-#include "efi.h"
+#include "int.h"
 
 typedef enum {
   PIXEL_RED_GREEN_BLUE_RESERVED_8BIT_PER_COLOR,
