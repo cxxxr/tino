@@ -32,13 +32,20 @@ typedef struct {
     }                                                                          \
   }
 
+#define EFI_FILE_INFO_ID                                                       \
+  {                                                                            \
+    0x9576e92, 0x6d3f, 0x11d2, {                                               \
+      0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b                            \
+    }                                                                          \
+  }
+
 ///
-#define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL  0x00000001
-#define EFI_OPEN_PROTOCOL_GET_PROTOCOL        0x00000002
-#define EFI_OPEN_PROTOCOL_TEST_PROTOCOL       0x00000004
+#define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL 0x00000001
+#define EFI_OPEN_PROTOCOL_GET_PROTOCOL 0x00000002
+#define EFI_OPEN_PROTOCOL_TEST_PROTOCOL 0x00000004
 #define EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER 0x00000008
-#define EFI_OPEN_PROTOCOL_BY_DRIVER           0x00000010
-#define EFI_OPEN_PROTOCOL_EXCLUSIVE           0x00000020
+#define EFI_OPEN_PROTOCOL_BY_DRIVER 0x00000010
+#define EFI_OPEN_PROTOCOL_EXCLUSIVE 0x00000020
 
 ///
 typedef void *EFI_HANDLE;
@@ -75,6 +82,21 @@ typedef enum {
   EFI_PERSISTENT_MEMORY,
   EFI_MAX_MEMORY_TYP,
 } EFI_MEMORY_TYPE;
+
+/// efi time
+typedef struct {
+  uint16 year;
+  uint8 month;
+  uint8 day;
+  uint8 hour;
+  uint8 minute;
+  uint8 second;
+  uint8 pad1;
+  uint32 nanosecond;
+  uint16 time_zone;
+  uint8 daylight;
+  uint8 pad2;
+} EFI_TIME;
 
 /// simple text input protocol
 typedef struct {
@@ -114,11 +136,11 @@ typedef struct {
 } EFI_PIXEL_BITMASK;
 
 typedef enum {
-  _PixelRedGreenBlueReserved8BitPerColor,
-  _PixelBlueGreenRedReserved8BitPerColor,
-  _PixelBitMask,
-  _PixelBltOnly,
-  _PixelFormatMax
+  PixelRedGreenBlueReserved8BitPerColor,
+  PixelBlueGreenRedReserved8BitPerColor,
+  PixelBitMask,
+  PixelBltOnly,
+  PixelFormatMax
 } EFI_GRAPHICS_PIXEL_FORMAT;
 
 typedef struct EFI_GRAPHICS_OUTPUT_MODE_INFORMATION {
@@ -146,6 +168,8 @@ typedef struct {
 } EFI_GRAPHICS_OUTPUT_PROTOCOL;
 
 /// file protocol
+#define EFI_FILE_MODE_READ 0x0000000000000001
+
 struct EFI_FILE_PROTOCOL;
 
 typedef EFI_STATUS (*EFI_FILE_OPEN)(struct EFI_FILE_PROTOCOL *This,
@@ -157,12 +181,15 @@ typedef EFI_STATUS (*EFI_FILE_GET_INFO)(struct EFI_FILE_PROTOCOL *This,
                                         EFI_GUID *InformationType,
                                         uintn *BufferSize, void *Buffer);
 
+typedef EFI_STATUS (*EFI_FILE_READ)(struct EFI_FILE_PROTOCOL *this,
+                                    uintn *buffer_size, void *buffer);
+
 typedef struct EFI_FILE_PROTOCOL {
   uint64 revision;
   EFI_FILE_OPEN open;
   void *close;
   void *delete;
-  void *read;
+  EFI_FILE_READ read;
   void *write;
   void *get_position;
   void *set_position;
@@ -174,6 +201,18 @@ typedef struct EFI_FILE_PROTOCOL {
   void *write_ex;
   void *flush_ex;
 } EFI_FILE_PROTOCOL;
+
+/// efi file info
+typedef struct {
+  uint64 size;
+  uint64 file_size;
+  uint64 physical_size;
+  EFI_TIME create_time;
+  EFI_TIME last_access_time;
+  EFI_TIME modification_time;
+  uint64 attribute;
+  char16 file_name[];
+} EFI_FILE_INFO;
 
 /// simple file system protocol
 struct EFI_SIMPLE_FILE_SYSTEM_PROTOCOL;
@@ -200,6 +239,9 @@ typedef EFI_STATUS (*EFI_GET_MEMORY_MAP)(uintn *MemoryMapSize,
                                          uintn *MapKey, uintn *DescriptorSize,
                                          uintn *DescriptorVersion);
 
+typedef EFI_STATUS (*EFI_ALLOCATE_POOL)(EFI_MEMORY_TYPE pool_type, uintn size,
+                                        void **buffer);
+
 typedef EFI_STATUS (*EFI_EXIT_BOOT_SERVICES)(EFI_HANDLE, uintn);
 
 typedef enum {
@@ -224,6 +266,20 @@ typedef void (*EFI_COPY_MEM)(void *destination, void *source, uintn length);
 
 typedef void (*EFI_SET_MEM)(void *buffer, uintn size, uint8 value);
 
+typedef enum {
+  ALLOCATE_ANY_PAGES,
+  ALLOCATE_MAX_ADDRESS,
+  ALLOCATE_ADDRESS,
+  MAX_ALLOCATE_TYPE
+} EFI_ALLOCATE_TYPE;
+
+typedef uint64 EFI_PHYSICAL_ADDRESS;
+
+typedef EFI_STATUS (*EFI_ALLOCATE_PAGES)(EFI_ALLOCATE_TYPE type,
+                                         EFI_MEMORY_TYPE memory_type,
+                                         uintn pages,
+                                         EFI_PHYSICAL_ADDRESS *memory);
+
 typedef struct EFI_BOOT_SERVICES {
   ///
   /// The table header for the EFI Boot Services Table.
@@ -239,10 +295,10 @@ typedef struct EFI_BOOT_SERVICES {
   //
   // Memory Services
   //
-  void *allocate_pages;
+  EFI_ALLOCATE_PAGES allocate_pages;
   void *free_pages;
   EFI_GET_MEMORY_MAP get_memory_map;
-  void *allocate_pool;
+  EFI_ALLOCATE_POOL allocate_pool;
   EFI_FREE_POOL free_pool;
 
   //
