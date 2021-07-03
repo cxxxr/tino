@@ -156,6 +156,7 @@ typedef struct {
   uint32 max_mode;
   uint32 mode;
   EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info;
+  uintn size_of_info;
   uintn frame_buffer_base;
   uintn frame_buffer_size;
 } EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE;
