@@ -43,11 +43,12 @@ void open_gop(EFI_SYSTEM_TABLE *system_table, EFI_HANDLE image_handle,
   uintn num_gop_handles = 0;
   EFI_HANDLE *gop_handles = NULL;
   EFI_GUID gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+
   ASSERT(system_table->boot_services->locate_handle_buffer(
       ByProtocol, &gop_guid, NULL, &num_gop_handles, &gop_handles));
 
   ASSERT(system_table->boot_services->open_protocol(
-      gop_handles[0], &gop_guid, (void **)&gop, image_handle, NULL,
+      gop_handles[0], &gop_guid, (void **)gop, image_handle, NULL,
       EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL));
 
   ASSERT(system_table->boot_services->free_pool(gop_handles));
