@@ -5,6 +5,7 @@ lld-link /subsystem:efi_application /entry:efi_main /out:loader.efi loader.o
 
 EFI_FILE=loader.efi
 KERNEL_FILE=../kernel/kernel.elf
+FAT_DISK='../userland/fat_disk.img'
 
 qemu-img create -f raw disk.img 200M
 mkfs.fat -s 2 -f 2 -R 32 -F 32 disk.img
@@ -16,12 +17,14 @@ if [ `uname` == 'Darwin' ]; then
     mkdir -p mnt/EFI/BOOT
     cp $EFI_FILE mnt/EFI/BOOT/BOOTX64.EFI
     cp $KERNEL_FILE mnt/
+    cp $FAT_DISK mnt/
     hdiutil detach mnt/
 else
     sudo mount -o loop disk.img mnt
     sudo mkdir -p mnt/EFI/BOOT
     sudo cp $EFI_FILE mnt/EFI/BOOT/BOOTX64.EFI
     sudo cp $KERNEL_FILE mnt/
+    sudo cp $FAT_DISK mnt/
     sudo umount mnt
 fi
 

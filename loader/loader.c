@@ -209,6 +209,15 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
   EFI_FILE_PROTOCOL *root_dir;
   open_root_dir(system_table, image_handle, &root_dir);
 
+  void *volume_image;
+
+  {
+    EFI_FILE_PROTOCOL *volume_file;
+    root_dir->open(root_dir, &volume_file, L"\\fat_disk.img",
+                   EFI_FILE_MODE_READ, 0);
+    read_file(system_table, volume_file, &volume_image);
+  }
+
   load_kernel(system_table, image_handle, root_dir);
 
   PixelFormat pixel_format;
@@ -248,7 +257,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
   entry_params.memory_map.base = memory_map;
   entry_params.memory_map.size = memory_map_size;
   entry_params.memory_map.descriptor_size = descriptor_size;
-  // entry_params.volume_image = volume_image;
+  entry_params.volume_image = volume_image;
 
   EntryParams *arg = &entry_params;
   ((EntryPointType *)(entry_addr))(arg);
