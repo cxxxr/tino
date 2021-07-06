@@ -42,6 +42,7 @@ extern kernel_entry
 global call_kernel
 call_kernel:
 	mov rsp, kernel_stack + 1024 * 1024
+	mov rdi, rcx
 	call kernel_entry
 
 global load_gdtr
