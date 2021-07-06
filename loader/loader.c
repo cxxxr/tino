@@ -21,9 +21,15 @@ typedef void EntryPointType(EntryParams *);
 
 void __chkstk(void) { return; }
 
+void print_string(EFI_SYSTEM_TABLE *system_table, char16 *string) {
+  system_table->con_out->output_string(system_table->con_out, string);
+}
+
 void print_uint64(EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
-  char16 buffer[100];
-  int i = 100, column = 0;
+#define BUFFER_SIZE 100
+  char16 buffer[BUFFER_SIZE];
+  int i = BUFFER_SIZE, column = 0;
+#undef BUFFER_SIZE
   buffer[--i] = '\0';
   buffer[--i] = '\n';
   buffer[--i] = '\r';
@@ -31,6 +37,25 @@ void print_uint64(EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
     buffer[--i] = (value % 10) + '0';
     column++;
     value /= 10;
+    if (value == 0) {
+      break;
+    }
+  }
+  SystemTable->con_out->output_string(SystemTable->con_out, buffer + i);
+}
+
+void print_uint64_hex(EFI_SYSTEM_TABLE *SystemTable, uint64 value) {
+#define BUFFER_SIZE 100
+  char16 buffer[BUFFER_SIZE];
+  int i = BUFFER_SIZE, column = 0;
+#undef BUFFER_SIZE
+  buffer[--i] = '\0';
+  buffer[--i] = '\n';
+  buffer[--i] = '\r';
+  for (;;) {
+    buffer[--i] = "0123456789abcdef"[(value % 16)];
+    column++;
+    value /= 16;
     if (value == 0) {
       break;
     }
@@ -110,7 +135,28 @@ void get_load_address_range(Elf64_Ehdr *ehdr, uintn *first_addr,
 void copy_load_segments(EFI_SYSTEM_TABLE *system_table, Elf64_Ehdr *ehdr) {
   Elf64_Phdr *phdr = (Elf64_Phdr *)((uint64)ehdr + ehdr->e_phoff);
 
+  print_string(system_table, L"loading kernel.elf");
+
   for (Elf64_Half i = 0; i < ehdr->e_phnum; i++) {
+    print_string(system_table, L"\r\ni: ");
+    print_uint64(system_table, i);
+    print_string(system_table, L"type: ");
+    print_uint64_hex(system_table, phdr[i].p_type);
+    print_string(system_table, L"flags: ");
+    print_uint64_hex(system_table, phdr[i].p_flags);
+    print_string(system_table, L"offset: ");
+    print_uint64_hex(system_table, phdr[i].p_offset);
+    print_string(system_table, L"vaddr: ");
+    print_uint64_hex(system_table, phdr[i].p_vaddr);
+    print_string(system_table, L"paddr: ");
+    print_uint64_hex(system_table, phdr[i].p_paddr);
+    print_string(system_table, L"filesz: ");
+    print_uint64_hex(system_table, phdr[i].p_filesz);
+    print_string(system_table, L"memsz: ");
+    print_uint64_hex(system_table, phdr[i].p_memsz);
+    print_string(system_table, L"align: ");
+    print_uint64_hex(system_table, phdr[i].p_align);
+
     if (phdr[i].p_type == PT_LOAD) {
       uint64 source = (uint64)ehdr + phdr[i].p_offset;
       system_table->boot_services->copy_mem((void *)phdr[i].p_vaddr,
