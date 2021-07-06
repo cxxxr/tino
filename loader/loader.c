@@ -164,14 +164,6 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
   open_root_dir(system_table, image_handle, &root_dir);
 
   load_kernel(system_table, image_handle, root_dir);
-  system_table->boot_services->get_memory_map(&memory_map_size, memory_map,
-                                              &map_key, &descriptor_size,
-                                              &descriptor_version);
-
-  ASSERT(
-      system_table->boot_services->exit_boot_services(image_handle, map_key));
-
-  uint64 entry_addr = (uint64)((Elf64_Ehdr *)kernel_base_addr)->e_entry;
 
   PixelFormat pixel_format;
 
@@ -192,6 +184,19 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
                     gop->mode->info->vertical_resolution,
                     (uint8 *)gop->mode->frame_buffer_base,
                     gop->mode->frame_buffer_size};
+
+  // print_uint64(system_table, (uint64)&entry_params);
+
+  uint64 entry_addr = (uint64)((Elf64_Ehdr *)kernel_base_addr)->e_entry;
+
+  {
+    system_table->boot_services->get_memory_map(&memory_map_size, memory_map,
+                                                &map_key, &descriptor_size,
+                                                &descriptor_version);
+
+    ASSERT(
+        system_table->boot_services->exit_boot_services(image_handle, map_key));
+  }
 
   entry_params.frame_buffer = &frame_buffer;
   entry_params.memory_map.base = memory_map;
