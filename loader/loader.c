@@ -103,7 +103,7 @@ void read_file(EFI_SYSTEM_TABLE *system_table, EFI_FILE_PROTOCOL *file,
                void **buffer) {
   EFI_GUID file_info_guid = EFI_FILE_INFO_ID;
 
-  uintn file_info_size = sizeof(EFI_FILE_INFO) + sizeof(char16) * 12;
+  uintn file_info_size = sizeof(EFI_FILE_INFO) + sizeof(char16) * 13;
   uint8 file_info_buffer[file_info_size];
   file->get_info(file, &file_info_guid, &file_info_size, file_info_buffer);
   EFI_FILE_INFO *file_info = (EFI_FILE_INFO *)file_info_buffer;
