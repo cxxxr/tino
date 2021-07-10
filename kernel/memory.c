@@ -1,15 +1,16 @@
 #include "memory.h"
 #include "../loader/efi.h"
 #include "serial.h"
+#include "primitive.h"
 
-static int is_available_memory_type(EFI_MEMORY_TYPE memory_type) {
+static bool is_available_memory_type(EFI_MEMORY_TYPE memory_type) {
   switch (memory_type) {
   case EFI_BOOT_SERVICES_CODE:
   case EFI_BOOT_SERVICES_DATA:
   case EFI_CONVENTIONAL_MEMORY:
-    return 1;
+    return TRUE;
   default:
-    return 0;
+    return FALSE;
   }
 }
 
@@ -22,7 +23,7 @@ static struct page head;
 
 #if 0
 // 物理アドレス0とNULLの区別が付かないため、最後の要素の1ビット目に印をつける
-static int is_end(struct page* p)
+static bool is_end(struct page* p)
 {
     return (uint64)p->next & 1;
 }
@@ -32,14 +33,14 @@ static void set_end(struct page *p) {
   p->next = (struct page *)((uint64)p->next | 1);
 }
 
-static uint8 is_first = 1;
+static uint8 is_first = TRUE;
 static void append_free(uint64 start, uint64 npages) {
   struct page *node = (struct page *)start;
   node->next = head.next;
   node->size = npages * 4096 / sizeof(struct page);
 
   if (is_first) {
-    is_first = 0;
+    is_first = FALSE;
     set_end(node);
   }
 
