@@ -11,5 +11,6 @@ void load_gdtr(void *addr);
 void set_ds_all(uint16 di);
 void set_cs_ss(uint16 cs, uint16 ss);
 void set_cr3(uint64 addr);
+uint64 get_cr3(void);
 
 #endif
